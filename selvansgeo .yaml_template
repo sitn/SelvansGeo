@@ -1,0 +1,16 @@
+vars:
+    default_project: your_project.qgs
+    # Postgis DB configuration
+    pg:
+        host: your_pg_server
+        port: your_pg_port_in_single_quotes
+        dbname: your_pg_db
+        user: your_pg_reader_user
+        editor: your_pg_editor_user
+        password: your_pg_reader_password
+    # MSSQL SELVANS DB configuration
+    ms:
+        host: your_MSSQL_server
+        dbname: your_mssql_db
+        user: your_mssql_user
+        password: your_mssql_password
