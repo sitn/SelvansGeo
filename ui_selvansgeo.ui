@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SelvansGeo</class>
+ <widget class="QDialog" name="SelvansGeo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>521</width>
+    <height>486</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SelvansGeo</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <widget class="QTabWidget" name="tabPanel">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>501</width>
+     <height>471</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>501</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="connexionTab">
+    <attribute name="title">
+     <string>Connexion - Projet</string>
+    </attribute>
+    <widget class="QLineEdit" name="txtPassword">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>290</y>
+       <width>171</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>Entrez votre mot de passe</string>
+     </property>
+     <property name="text">
+      <string>reader_sffn_2014</string>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>250</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="text">
+      <string>Utilisateur: </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>290</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Mot de passe: </string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbConnection">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>250</y>
+       <width>171</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Choisissez le type de connexion</string>
+     </property>
+     <property name="whatsThis">
+      <string>Pour modifier les données, choisir le mode édition</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Consultation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Edition</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="btConnection">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>320</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Se connecte à la base de données et charge (recharge) le projet</string>
+     </property>
+     <property name="whatsThis">
+      <string>Se connecter à la base de donnée et charger le projet</string>
+     </property>
+     <property name="text">
+      <string>Connexion</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="grpProjects">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>471</width>
+       <height>211</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Projet QGIS SelvansGeo</string>
+     </property>
+     <widget class="QPushButton" name="btLoadProject">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>110</y>
+        <width>221</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Recharge le projet affiché ci-dessus</string>
+      </property>
+      <property name="whatsThis">
+       <string>Permet de recharger le projet ouvert actuellement</string>
+      </property>
+      <property name="text">
+       <string>(Re) Charger le projet</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btDefineDefaultProject">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>140</y>
+        <width>221</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Permet de charger par défaut un projet personnalisé</string>
+      </property>
+      <property name="whatsThis">
+       <string>Permet de choisir un projet QGIS personnalisé et de le définir comme projet par défaut</string>
+      </property>
+      <property name="text">
+       <string>Définir un projet personnalisé</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btResetDefaultProject">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>170</y>
+        <width>221</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Utiliser le projet standard fournit avec SelvansGeo</string>
+      </property>
+      <property name="whatsThis">
+       <string>Reprendre le project fournit avec le plugin et de le définir comme projet par défaut</string>
+      </property>
+      <property name="text">
+       <string>Reprendre le projet standard</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblProject">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Projet actuel:</string>
+      </property>
+     </widget>
+     <widget class="QTextBrowser" name="lblCurrentProject">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>30</y>
+        <width>321</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>247</red>
+            <green>247</green>
+            <blue>247</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>247</red>
+            <green>247</green>
+            <blue>247</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>240</red>
+            <green>240</green>
+            <blue>240</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <property name="whatsThis">
+       <string>Ceci est le chemin vers le fichier QGIS chargé actuellement</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="lblVersion">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>410</y>
+       <width>471</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;SelvansGeo &lt;span style=&quot; font-weight:600;&quot;&gt;1.7&lt;/span&gt; 10.11.2016 pour QGIS &lt;span style=&quot; font-weight:600;&quot;&gt;2.14.0+&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabAnalysis">
+    <attribute name="title">
+     <string>Analyses</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Analyses spatiale des données SELVANS actuelles</string>
+    </attribute>
+    <widget class="QComboBox" name="cmbAnalysis">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>451</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Choix de l'analyse thématique</string>
+     </property>
+     <property name="whatsThis">
+      <string>Choisir une analyse</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblAnalysis">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>36</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Choix de l'analyse:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btAnalysis">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>400</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>Lancer l'analyse</string>
+     </property>
+     <property name="text">
+      <string>Lancer l'analyse</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkSaveAnalysisResult">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>340</y>
+       <width>431</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Permet de sauver le résultat de l'analyse dans un répertoire (sans la représentation)</string>
+     </property>
+     <property name="whatsThis">
+      <string>Enregistrer le résultat de l'analyse sur le disque au format ESRI shapefile</string>
+     </property>
+     <property name="text">
+      <string>Sauvegarder le résultat sur le disque</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtAnalysisName">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>370</y>
+       <width>441</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>Chemin d'enregistrement du fichier ESRI shapefile</string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txtMssqlQuery">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>220</y>
+       <width>451</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Reqête SQL sur SELVANS</string>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btAdvancedUserMode">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>10</y>
+       <width>141</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>93</width>
+       <height>28</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Visualiser les détails de la requête SELVANS</string>
+     </property>
+     <property name="whatsThis">
+      <string>Permet d'afficher la requête complète correspondant à l'analyse en cours</string>
+     </property>
+     <property name="text">
+      <string>Mode avancé</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblSql">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>200</y>
+       <width>191</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Requête SQL Server</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblDateStart">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>90</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Date de l'inventaire</string>
+     </property>
+     <property name="text">
+      <string>Année</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lnYearStart">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>90</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Date de l'inventaire</string>
+     </property>
+     <property name="whatsThis">
+      <string>Saisir la date du plus ancien inventaire auquel on s'intéresse</string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QFrame" name="frameIcon">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>390</y>
+       <width>41</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame {bacCkground-color: red}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkLastSurvey">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>90</y>
+       <width>241</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>Ne considérer que l'inventaire le plus récent</string>
+     </property>
+     <property name="text">
+      <string>Prendre la date la plus récente</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>161</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Filtrer par administration:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtAdmShortName">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>120</y>
+       <width>221</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Entrez le ou les noms court. Ex: BDY ou BDY;BRD</string>
+     </property>
+     <property name="whatsThis">
+      <string>Saisir le ou les codes des administrations (Ex: BDY ou BDY, COT) </string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lnYearEnd">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>90</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Date de fin de la période d'analyse</string>
+     </property>
+     <property name="whatsThis">
+      <string>Choisir la date de l'inventaire le plus récent auquel on s'intéresse</string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblDateEnd">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>90</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Date de l'inventaire</string>
+     </property>
+     <property name="text">
+      <string>Fin</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblCoupeType">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>150</y>
+       <width>111</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Date de l'inventaire</string>
+     </property>
+     <property name="text">
+      <string>Motif de coupe:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lnCoupeType">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>150</y>
+       <width>221</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Saisir le ou les types de coupes (ex: 13 ou 1;13)</string>
+     </property>
+     <property name="whatsThis">
+      <string>Saisir le ou les types de coupes (ex: 13 ou 1;13)</string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>Navigation</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Navigation par niveaux géographiques</string>
+    </attribute>
+    <widget class="QListWidget" name="listArr">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>141</width>
+       <height>351</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Click: sélection des administrations d'un arrondissement</string>
+     </property>
+     <property name="whatsThis">
+      <string>Sélectionner un arrondissement (simple click), zoomer: double click</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="listAdm">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>40</y>
+       <width>141</width>
+       <height>351</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>click: sélection des divisions d'une administration, double-click: zoom sur l'administration</string>
+     </property>
+     <property name="whatsThis">
+      <string>Sélectionner une administration (simple click), zoomer: double click</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="listDiv">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>40</y>
+       <width>141</width>
+       <height>351</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>double-click: zoom sur la division</string>
+     </property>
+     <property name="whatsThis">
+      <string>Sélectionner une division (simple click), zoomer: double click</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>141</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Arrondissements</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>10</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Administrations</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>350</x>
+       <y>10</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Divisions</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabEdit">
+    <attribute name="title">
+     <string>Édition</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Outils d'éditions spécifiques SelvansGeo</string>
+    </attribute>
+    <widget class="QFrame" name="frameIcon_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>350</y>
+       <width>41</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame {bacCkground-color: red}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="grpViewNodes">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>9</y>
+       <width>481</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="whatsThis">
+      <string>Ne calculer les noeuds que pour l'emprise courante (visible) afin d'aller plus vite</string>
+     </property>
+     <property name="title">
+      <string>Visualiser les noeuds</string>
+     </property>
+     <widget class="QCheckBox" name="chkSelectByCanvasExtent">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>311</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Seulement pour l'emprise courante</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboLayers">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>271</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Choisir une couche pour laquelle les noeuds doivent etre affichés. La création des noeuds peut prendre du temps...</string>
+      </property>
+      <property name="whatsThis">
+       <string>Choisir une couche pour laquelle les noeuds doivent etre affichés. La création des noeuds peut prendre du temps...</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btHideNodes">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>50</y>
+        <width>81</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Supprime la couche des noeuds</string>
+      </property>
+      <property name="whatsThis">
+       <string>Supprime la couche des noeuds</string>
+      </property>
+      <property name="text">
+       <string>Masquer</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btShowNodes">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>50</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Lance l'extraction de noeuds</string>
+      </property>
+      <property name="whatsThis">
+       <string>Lance l'extraction de noeuds</string>
+      </property>
+      <property name="text">
+       <string>Afficher</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>481</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Désactiver une couche en sélectionnant l'un de ses objets</string>
+     </property>
+     <widget class="QPushButton" name="btDesactivateLayer">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>191</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Désactiver une couche par clique sur une entité de cette couche</string>
+      </property>
+      <property name="whatsThis">
+       <string>Permet de désactiver une couche par un click sur une entité lui appartenant</string>
+      </property>
+      <property name="text">
+       <string>Désactiver une couche</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Aide</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Toutes les aides dont vous avez besoin !</string>
+    </attribute>
+    <widget class="QPushButton" name="btQgisHelp">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>211</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Afficher l'aide en ligne QGIS</string>
+     </property>
+     <property name="whatsThis">
+      <string>Afficher l'aide en ligne QGIS</string>
+     </property>
+     <property name="text">
+      <string>Voir l'aide QGIS</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btSelvansGeoHelp">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>211</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Afficher le manuel utilisateur SelvansGeo</string>
+     </property>
+     <property name="whatsThis">
+      <string>Afficher le manuel utilisateur SelvansGeo</string>
+     </property>
+     <property name="text">
+      <string>Voir l'aide SelvanGeo</string>
+     </property>
+    </widget>
+    <widget class="QFrame" name="frameIcon_4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>350</y>
+       <width>41</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame {bacCkground-color: red}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btQgisPrintComposerHelp">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>341</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Afficher l'aide en ligne pour le composeur d'impression</string>
+     </property>
+     <property name="whatsThis">
+      <string>Afficher l'aide en ligne pour le composeur d'impression</string>
+     </property>
+     <property name="text">
+      <string>Voir l'aide QGIS du composeur d'impression</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
