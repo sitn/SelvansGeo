@@ -2,4 +2,5 @@ qgisprj/*.qgs~
 qgisprj/*.qgs
 *.pyc
 *.yaml
+*.bat
 resources_rc.py
