@@ -1,0 +1,4 @@
+qgisprj/*.qgs~
+*.pyc
+*.yaml
+resources_rc.py

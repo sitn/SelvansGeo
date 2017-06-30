@@ -1,0 +1,28 @@
+[general]
+name=SelvansGeo
+qgisMinimumVersion=2.18
+description=Plugin pour l'analyse et l'édition des données spatiale du SFFN
+version=1.8.0
+author=SITN/SFFN
+email=olivier.monod@ne.ch
+
+# end of mandatory metadata
+
+# Optional items:
+
+# Uncomment the following line and add your changelog entries:
+# changelog=
+
+# tags are comma separated with spaces allowed
+tags=Forrest managment
+
+homepage=https://github.com/sitn/SelvansGeo
+tracker=https://github.com/sitn/SelvansGeo
+repository=https://github.com/sitn/SelvansGeo
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version
+deprecated=False
+
