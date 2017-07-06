@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from builtins import str
 import os.path
 import sys
-from qgis.PyQt.QtWidgets import QInputDialog
+from PyQt4.QtGui import QInputDialog
 from qgis.core import QgsMapTool, QgsGeometry
 from qgis.gui import QgsMapToolEmitPoint
 
@@ -45,8 +44,8 @@ class DesactivateLayerMapTool(QgsMapTool):
         w.cancelButtonText = "Annuler"
         w.setOkButtonText("Désactiver")
         item, ok = w.getItem(self.dlg,
-                             str("Désactiver une couche", "utf-8"),
-                             str("Choisir une couche", "utf-8"),
+                             unicode("Désactiver une couche", "utf-8"),
+                             unicode("Choisir une couche", "utf-8"),
                              activeLayerHere,
                              current=0,
                              editable=False)

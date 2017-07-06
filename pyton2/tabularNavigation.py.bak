@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-from builtins import object
-from qgis.PyQt.QtWidgets import QListWidgetItem
+from PyQt4.QtGui import QListWidgetItem
 
 
-class tabularNavigation(object):
+class tabularNavigation:
 
     def __init__(self,
                  iface,
@@ -127,7 +125,7 @@ class tabularNavigation(object):
             idne = attrs[idx]
             self.dlg.listDiv.addItem(
                 QSelvansListItem(idne,
-                                 str(str(nomadm) + str(nomdiv), "utf-8"),
+                                 unicode(str(nomadm) + str(nomdiv), "utf-8"),
                                  feature.geometry().boundingBox())
              )
 

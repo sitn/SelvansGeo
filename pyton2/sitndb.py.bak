@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from builtins import object
-from qgis.PyQt.QtSql import QSqlDatabase
+from PyQt4.QtSql import QSqlDatabase
 from qgis.core import QgsDataSourceURI, QgsVectorLayer
 from qgis.gui import QgsMessageBar
 
 
-class SitnDB(object):
+class SitnDB:
     def __init__(self, dbname, host, port, user, password, providerkey, iface):
         """
             Defines the db connexion parameters and the qgis provider key

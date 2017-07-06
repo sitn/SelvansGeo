@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt import QtGui
-from .ui_selvansgeo import Ui_SelvansGeo
+from PyQt4 import QtGui
+from ui_selvansgeo import Ui_SelvansGeo
 
 
 class SelvansGeoDialog(QtGui.QDialog, Ui_SelvansGeo):

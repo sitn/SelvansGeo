@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-from builtins import object
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QProgressBar
-from qgis.PyQt.QtGui import QColor
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QProgressBar, QColor
 from qgis.core import QgsMapLayerRegistry, QgsVectorLayer, QgsMarkerSymbolV2
 from qgis.core import QGis, QgsSingleSymbolRendererV2, QgsRectangle
 from qgis.core import QgsFeatureRequest, QgsFeature, QgsGeometry, QgsPoint
@@ -14,7 +11,7 @@ Selvans custom cartographic tools
 """
 
 
-class CartoTools(object):
+class CartoTools:
 
     def __init__(self, iface, dlg):
         self.iface = iface
@@ -74,7 +71,7 @@ class CartoTools(object):
 
         # Create progress bar
         progressMessageBar = self.messageBar.createMessage(
-            str("Création des noeuds...", "utf-8"))
+            unicode("Création des noeuds...", "utf-8"))
         progress = QProgressBar()
         progress.setMinimum(0)
         progress.setMaximum(featuresCount)
@@ -132,7 +129,7 @@ class CartoTools(object):
                             self.nodeLayerProvider.addFeatures([feat])
             else:
                 self.messageBar.pushMessage("Cartotools : ",
-                                            str("Type de géométrie non" +
+                                            unicode("Type de géométrie non" +
                                                     "supporté: " + str(type),
                                                     "utf-8"),
                                             level=QgsMessageBar.CRITICAL)

@@ -20,23 +20,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
 
-from builtins import str
-from builtins import object
 import os.path
 import sys
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject
-
-from qgis.PyQt.QtSql import QSqlDatabase
-from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtGui import QPainter
-from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
+from PyQt4.QtCore import QSettings, QTranslator, QCoreApplication, QObject
+from PyQt4.QtCore import SIGNAL
+from PyQt4.QtSql import QSqlDatabase
+from PyQt4.QtGui import QAction, QIntValidator, QIcon
+from PyQt4.QtGui import QPainter, QListWidgetItem, QFileDialog, QMessageBox
 from qgis.core import QgsProject, QgsCredentials, QgsMapLayerRegistry
 from qgis.gui import QgsMessageBar
-from . import resources
-from .selvansgeodialog import SelvansGeoDialog
+import resources
+from selvansgeodialog import SelvansGeoDialog
 from .core.thematicanalysis import ThematicAnalysis
 from .core.cartotools import CartoTools
 from .core.sitndb import SitnDB
@@ -50,7 +45,7 @@ currentPath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
 
 
-class SelvansGeo(object):
+class SelvansGeo:
 
     def __init__(self, iface):
         """
@@ -171,39 +166,70 @@ class SelvansGeo(object):
         # *** Connect signals and slot***
 
         # Project
-        self.dlg.btLoadProject.clicked.connect(self.openSelvansGeoProject)
-        self.dlg.btDefineDefaultProject.clicked.connect(self.defineDefaultProject)
-        self.dlg.btResetDefaultProject.clicked.connect(self.resetDefaultProject)
+        QObject.connect(self.dlg.btLoadProject, SIGNAL("clicked()"),
+                        self.openSelvansGeoProject)
+        QObject.connect(self.dlg.btDefineDefaultProject, SIGNAL("clicked()"),
+                        self.defineDefaultProject)
+        QObject.connect(self.dlg.btResetDefaultProject, SIGNAL("clicked()"),
+                        self.resetDefaultProject)
 
         # Connection
-        self.dlg.btConnection.clicked.connect(self.connectionsInit)
+        QObject.connect(self.dlg.btConnection,
+                        SIGNAL("clicked()"), self.connectionsInit)
 
         # self.switchUiMode(True)# DEBUG MODE. COMMENT IN PRODUCTION
 
-        self.dlg.cmbConnection.currentIndexChanged.connect(self.setConnectionPwdTxt)
+        QObject.connect(self.dlg.cmbConnection,
+                        SIGNAL("currentIndexChanged(int)"),
+                        self.setConnectionPwdTxt)
 
         # CartoTools
-        self.dlg.btShowNodes.clicked.connect(self.cartotools.showNodes)
-        self.dlg.btDesactivateLayer.clicked.connect(self.setDesactivateLayerTool)
-        self.iface.mapCanvas().renderComplete.connect(self.fillLayersCombo)
+        QObject.connect(self.dlg.btShowNodes,
+                        SIGNAL("clicked()"), self.cartotools.showNodes)
+        QObject.connect(self.dlg.btDesactivateLayer, SIGNAL("clicked()"),
+                        self.setDesactivateLayerTool)
+        QObject.connect(self.iface.mapCanvas(),
+                        SIGNAL("renderComplete(QPainter *)"),
+                        self.fillLayersCombo)
 
         # Help
-        self.dlg.btQgisPrintComposerHelp.clicked.connect(self.openQgisPrintHelp)
-        self.dlg.btQgisHelp.clicked.connect(self.openQgisHelp)
-        self.dlg.btSelvansGeoHelp.clicked.connect(self.openSelvansGeoHelp)
+        QObject.connect(self.dlg.btQgisPrintComposerHelp,
+                        SIGNAL("clicked()"), self.openQgisPrintHelp)
+        QObject.connect(self.dlg.btQgisHelp, SIGNAL("clicked()"),
+                        self.openQgisHelp)
+        QObject.connect(self.dlg.btSelvansGeoHelp, SIGNAL("clicked()"),
+                        self.openSelvansGeoHelp)
 
         # Navigation tools
-        self.dlg.listArr.itemClicked.connect(self.tabularNavigation.selectAdministration)
-        self.dlg.listAdm.itemClicked.connect(self.tabularNavigation.selectDivision)
-        self.dlg.listAdm.itemDoubleClicked.connect(self.tabularNavigation.zoomToSelectedAdministration)
-        self.dlg.listDiv.itemDoubleClicked.connect(self.tabularNavigation.zoomToSelectedDivision)
+        QObject.connect(self.dlg.listArr,
+                        SIGNAL("itemClicked(QListWidgetItem *)"),
+                        self.tabularNavigation.selectAdministration)
+        QObject.connect(self.dlg.listAdm,
+                        SIGNAL("itemClicked(QListWidgetItem *)"),
+                        self.tabularNavigation.selectDivision)
+        QObject.connect(self.dlg.listAdm,
+                        SIGNAL("itemDoubleClicked(QListWidgetItem *)"),
+                        self.tabularNavigation.zoomToSelectedAdministration)
+        QObject.connect(self.dlg.listDiv,
+                        SIGNAL("itemDoubleClicked(QListWidgetItem *)"),
+                        self.tabularNavigation.zoomToSelectedDivision)
 
         # Thematic analysis
-        self.dlg.btAnalysis.clicked.connect(self.thematicanalysis.createAnalysis)
-        self.dlg.btAdvancedUserMode.clicked.connect(self.analysisAdvancedUserMode)
-        self.dlg.cmbAnalysis.currentIndexChanged.connect(self.thematicanalysis.getQueryStringFromDb)
-        self.dlg.chkSaveAnalysisResult.stateChanged.connect(self.thematicanalysis.openFileDialog)
-        self.dlg.chkLastSurvey.stateChanged.connect(self.thematicanalysis.checkLastSurvey)
+        QObject.connect(self.dlg.btAnalysis,
+                        SIGNAL("clicked()"),
+                        self.thematicanalysis.createAnalysis)
+        QObject.connect(self.dlg.btAdvancedUserMode,
+                        SIGNAL("clicked()"),
+                        self.analysisAdvancedUserMode)
+        QObject.connect(self.dlg.cmbAnalysis,
+                        SIGNAL("currentIndexChanged(int)"),
+                        self.thematicanalysis.getQueryStringFromDb)
+        QObject.connect(self.dlg.chkSaveAnalysisResult,
+                        SIGNAL("stateChanged(int)"),
+                        self.thematicanalysis.openFileDialog)
+        QObject.connect(self.dlg.chkLastSurvey,
+                        SIGNAL("stateChanged(int)"),
+                        self.thematicanalysis.checkLastSurvey)
 
         self.dlg.lnYearStart.setValidator(QIntValidator())
         self.dlg.lnYearStart.setMaxLength(4)
@@ -289,7 +315,7 @@ class SelvansGeo(object):
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
                     self.messageBar.pushMessage("Erreur",
-                                                str("Mot de passe"
+                                                unicode("Mot de passe"
                                                         + "non valide ",
                                                         "utf-8"),
                                                 level=QgsMessageBar.CRITICAL)
@@ -303,12 +329,12 @@ class SelvansGeo(object):
         self.switchUiMode(True)
 
         if self.currentRole != roleSelected and self.currentRole != "init":
-            self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
+            self.messageBar.pushMessage("Info", unicode("Vous êtes connecté en"
                                         + "mode ", "utf-8") +
                                         roleSelected, level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         else:
-            self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
+            self.messageBar.pushMessage("Info", unicode("Vous êtes connecté en"
                                         + "mode ", "utf-8") + roleSelected,
                                         level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
@@ -327,7 +353,7 @@ class SelvansGeo(object):
         """
         Load the default SelvansGeo QGIS Project
         """
-        warningTxt = str("Ceci annulera les modifications non sauvegardée"
+        warningTxt = unicode("Ceci annulera les modifications non sauvegardée"
                              + "du projet QGIS ouvert actuellement", 'utf-8')
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
