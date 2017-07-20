@@ -2,7 +2,7 @@
 
 from builtins import object
 from qgis.PyQt.QtSql import QSqlDatabase
-from qgis.core import QgsDataSourceURI, QgsVectorLayer
+from qgis.core import QgsDataSourceUri, QgsVectorLayer
 from qgis.gui import QgsMessageBar
 
 
@@ -12,7 +12,7 @@ class SitnDB(object):
             Defines the db connexion parameters and the qgis provider key
         """
 
-        self.uri = QgsDataSourceURI()
+        self.uri = QgsDataSourceUri()
         self.uri.setConnection(host, port, dbname, user, password)
         self.providerkey = providerkey
         self.errorMessage = ''

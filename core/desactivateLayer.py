@@ -3,8 +3,8 @@ from builtins import str
 import os.path
 import sys
 from qgis.PyQt.QtWidgets import QInputDialog
-from qgis.core import QgsMapTool, QgsGeometry
-from qgis.gui import QgsMapToolEmitPoint
+from qgis.core import QgsGeometry
+from qgis.gui import QgsMapTool, QgsMapToolEmitPoint
 
 
 class DesactivateLayerMapTool(QgsMapTool):

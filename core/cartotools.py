@@ -5,8 +5,8 @@ from builtins import object
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QProgressBar
 from qgis.PyQt.QtGui import QColor
-from qgis.core import QgsMapLayerRegistry, QgsVectorLayer, QgsMarkerSymbolV2
-from qgis.core import QGis, QgsSingleSymbolRendererV2, QgsRectangle
+from qgis.core import QgsProject, QgsVectorLayer, QgsMarkerSymbol
+from qgis.core import QgsSingleSymbolRenderer, QgsRectangle
 from qgis.core import QgsFeatureRequest, QgsFeature, QgsGeometry, QgsPoint
 
 """
@@ -19,7 +19,7 @@ class CartoTools(object):
     def __init__(self, iface, dlg):
         self.iface = iface
         self.canvas = iface.mapCanvas()
-        self.layerRegistry = QgsMapLayerRegistry.instance()
+        self.layerRegistry = QgsProject.instance()
         self.dlg = dlg
         self.messageBar = iface.messageBar()
 
@@ -47,12 +47,12 @@ class CartoTools(object):
         self.nodeLayerProvider = self.nodeLayer.dataProvider()
 
         # Create rendering style
-        nodeSymbol = QgsMarkerSymbolV2.defaultSymbol(
+        nodeSymbol = QgsMarkerSymbol.defaultSymbol(
             self.nodeLayer.geometryType())
 
         nodeSymbol.setColor(QColor('#CC3300'))
         nodeSymbol.setSize(2.0)
-        nodeRenderer = QgsSingleSymbolRendererV2(nodeSymbol)
+        nodeRenderer = QgsSingleSymbolRenderer(nodeSymbol)
         self.nodeLayer.setRendererV2(nodeRenderer)
 
         # Select features visible in current map canvas extent

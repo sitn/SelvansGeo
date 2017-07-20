@@ -30,10 +30,10 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject
 
 from qgis.PyQt.QtSql import QSqlDatabase
 from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QIntValidator
 from qgis.PyQt.QtGui import QPainter
 from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
-from qgis.core import QgsProject, QgsCredentials, QgsMapLayerRegistry
+from qgis.core import QgsProject, QgsCredentials
 from qgis.gui import QgsMessageBar
 from . import resources
 from .selvansgeodialog import SelvansGeoDialog
@@ -69,10 +69,10 @@ class SelvansGeo(object):
         self.canvas = self.iface.mapCanvas()
 
         # Get reference to legend interface
-        self.legendInterface = self.iface.legendInterface()
+        self.legendInterface = None #self.iface.legendInterface()
 
         # Get reference to the legend interface
-        self.layerRegistry = QgsMapLayerRegistry.instance()
+        self.layerRegistry = QgsProject.instance()
 
         # Get reference to the Project interface
         self.projectInterface = QgsProject.instance()
@@ -158,7 +158,6 @@ class SelvansGeo(object):
         # SelvansGeo navigation tools
         self.tabularNavigation = tabularNavigation(self.iface,
                                                    self.dlg,
-                                                   self.legendInterface,
                                                    self.layerRegistry,
                                                    self.pgdb,
                                                    self.canvas)
@@ -395,9 +394,9 @@ class SelvansGeo(object):
         iter = pgLayer.getFeatures()
         for feature in iter:
             attrs = feature.attributes()
-            idx = pgLayer.fieldNameIndex("analysis_name")
+            idx = pgLayer.fields().indexFromName("analysis_name")
             analysis_name = attrs[idx]
-            idx = pgLayer.fieldNameIndex("id")
+            idx = pgLayer.fields().indexFromName("id")
             id = attrs[idx]
             self.dlg.cmbAnalysis.addItem(analysis_name, str(id))
 
@@ -414,9 +413,9 @@ class SelvansGeo(object):
         iter = pgLayer.getFeatures()
         for feature in iter:
             attrs = feature.attributes()
-            idx = pgLayer.fieldNameIndex("adm")
+            idx = pgLayer.fields().indexFromName("adm")
             administration_name = attrs[idx]
-            idx = pgLayer.fieldNameIndex("idobj")
+            idx = pgLayer.fields().indexFromName("idobj")
             id = attrs[idx]
             self.dlg.cmbAdminFilter.addItem(administration_name, str(idobj))
 

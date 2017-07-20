@@ -10,12 +10,10 @@ class tabularNavigation(object):
     def __init__(self,
                  iface,
                  dlg,
-                 legendInterface,
                  layerRegistry,
                  pgdb,
                  canvas):
 
-        self.legendInterface = legendInterface
         self.layerRegistry = layerRegistry
         self.dlg = dlg
         self.pgdb = pgdb
@@ -43,9 +41,9 @@ class tabularNavigation(object):
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = arrLayer.fieldNameIndex("nom")
+            idx = arrLayer.fields().indexFromName("nom")
             name = attrs[idx]
-            idx = arrLayer.fieldNameIndex("numero")
+            idx = arrLayer.fields().indexFromName("numero")
             numero = attrs[idx]
             if name not in nameList:
                 nameList.append(name)
@@ -77,9 +75,9 @@ class tabularNavigation(object):
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = admLayer.fieldNameIndex("adm")
+            idx = admLayer.fields().indexFromName("adm")
             adm = attrs[idx]
-            idx = admLayer.fieldNameIndex("codeadm")
+            idx = admLayer.fields().indexFromName("codeadm")
             codeadm = attrs[idx]
             self.dlg.listAdm.addItem(
                 QSelvansListItem(codeadm,
@@ -119,11 +117,11 @@ class tabularNavigation(object):
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = divLayer.fieldNameIndex("nom")
+            idx = divLayer.fields().indexFromName("nom")
             nomdiv = attrs[idx]
-            idx = divLayer.fieldNameIndex("adm")
+            idx = divLayer.fields().indexFromName("adm")
             nomadm = attrs[idx]
-            idx = divLayer.fieldNameIndex("idne")
+            idx = divLayer.fields().indexFromName("idne")
             idne = attrs[idx]
             self.dlg.listDiv.addItem(
                 QSelvansListItem(idne,

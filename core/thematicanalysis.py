@@ -6,8 +6,8 @@ from builtins import range
 from builtins import object
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
-from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsMapLayerRegistry
-from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorJoinInfo
+from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
+from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
 from qgis.gui import QgsMessageBar
 
 
@@ -234,7 +234,7 @@ class ThematicAnalysis(object):
                 analysisLp.addFeatures([outFeat])
 
         analysisLayer.updateFields()
-        QgsMapLayerRegistry.instance().addMapLayer(analysisLayer)
+        QgsProject.instance().addMapLayer(analysisLayer)
 
         # # Apply the style store in public.layer_styles to the result layer
         # # 24.11.2016: deactivated for now
@@ -454,11 +454,11 @@ class ThematicAnalysis(object):
         Join the results of the SQL Server query to the pg layer
         """
 
-        joinInfo = QgsVectorJoinInfo()
-        joinInfo.targetFieldName = pkfield
-        joinInfo.joinLayerId = sourcelayer.id()
-        joinInfo.joinFieldName = fkfield
-        joinInfo.memoryCache = True
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setTargetFieldName(pkfield)
+        joinInfo.setJoinLayerId(sourcelayer.id())
+        joinInfo.setJoinFieldName(fkfield)
+        joinInfo.setUsingMemoryCache(True)
         targetlayer.addJoin(joinInfo)
         targetlayer.updateFields()
         return targetlayer
