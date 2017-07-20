@@ -74,9 +74,6 @@ class SelvansGeo(object):
         # Get reference to the legend interface
         self.layerRegistry = QgsProject.instance()
 
-        # Get reference to the Project interface
-        self.projectInterface = QgsProject.instance()
-
         # Create the GUI Dialog
         self.dlg = SelvansGeoDialog()
 
@@ -184,7 +181,8 @@ class SelvansGeo(object):
         # CartoTools
         self.dlg.btShowNodes.clicked.connect(self.cartotools.showNodes)
         self.dlg.btDesactivateLayer.clicked.connect(self.setDesactivateLayerTool)
-        self.iface.mapCanvas().renderComplete.connect(self.fillLayersCombo)
+        # CALL THIS AT A BETTER PLACE!!!
+        #self.iface.mapCanvas().renderComplete.connect(self.fillLayersCombo)
 
         # Help
         self.dlg.btQgisPrintComposerHelp.clicked.connect(self.openQgisPrintHelp)
@@ -231,9 +229,9 @@ class SelvansGeo(object):
     def defineDefaultProject(self):
         filename = QFileDialog.getOpenFileName(None, 'Choisir un projet')
         s = QSettings()
-        s.setValue("SelvansGeo/customProject", filename)
-        self.customProjectPath = filename
-        # Set label about project paths
+        s.setValue("SelvansGeo/customProject", filename[0])
+        self.customProjectPath = filename[0]
+        # Set label about project path
         self.dlg.lblCurrentProject.setText(self.customProjectPath)
 
     def resetDefaultProject(self):
@@ -288,9 +286,7 @@ class SelvansGeo(object):
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
                     self.messageBar.pushMessage("Erreur",
-                                                str("Mot de passe"
-                                                        + "non valide ",
-                                                        "utf-8"),
+                                                str("Mauvais mot de passe"),
                                                 level=QgsMessageBar.CRITICAL)
                     self.dlg.txtPassword.setText("")
                     return
@@ -303,12 +299,12 @@ class SelvansGeo(object):
 
         if self.currentRole != roleSelected and self.currentRole != "init":
             self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
-                                        + "mode ", "utf-8") +
+                                        + "mode ") +
                                         roleSelected, level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         else:
             self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
-                                        + "mode ", "utf-8") + roleSelected,
+                                        + "mode ") + roleSelected,
                                         level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         # store the current role
@@ -327,7 +323,7 @@ class SelvansGeo(object):
         Load the default SelvansGeo QGIS Project
         """
         warningTxt = str("Ceci annulera les modifications non sauvegardée"
-                             + "du projet QGIS ouvert actuellement", 'utf-8')
+                             + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
                                      QMessageBox.Ok | QMessageBox.Cancel,
@@ -424,7 +420,7 @@ class SelvansGeo(object):
         Fill the QComboBox with the list of geometric layers
         """
         self.dlg.comboLayers.clear()
-        layers = self.legendInterface.layers()
+        layers = QgsProject.instance().layers()
         for layer in layers:
             # Load only vector layers
             if layer.type() == 0 and layer.name() != 'Noeuds':
@@ -444,6 +440,7 @@ class SelvansGeo(object):
         show the dialog
         """
         self.dlg.show()
-        self.fillLayersCombo()
+        # CALL THIS, REALLY ???
+        #self.fillLayersCombo()
         # Run the dialog event loop
         self.dlg.exec_()

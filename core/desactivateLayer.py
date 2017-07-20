@@ -45,8 +45,8 @@ class DesactivateLayerMapTool(QgsMapTool):
         w.cancelButtonText = "Annuler"
         w.setOkButtonText("Désactiver")
         item, ok = w.getItem(self.dlg,
-                             str("Désactiver une couche", "utf-8"),
-                             str("Choisir une couche", "utf-8"),
+                             str("Désactiver une couche"),
+                             str("Choisir une couche"),
                              activeLayerHere,
                              current=0,
                              editable=False)

@@ -124,8 +124,7 @@ class tabularNavigation(object):
             idx = divLayer.fields().indexFromName("idne")
             idne = attrs[idx]
             self.dlg.listDiv.addItem(
-                QSelvansListItem(idne,
-                                 str(str(nomadm) + str(nomdiv), "utf-8"),
+                QSelvansListItem(idne, str(nomadm) + str(nomdiv),
                                  feature.geometry().boundingBox())
              )
 

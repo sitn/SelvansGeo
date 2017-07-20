@@ -357,7 +357,7 @@ class ThematicAnalysis(object):
 
         if k == 0:
             self.messageBar.pushMessage("Attention",
-                                        str("Résultat vide! : ", "utf-8"),
+                                        str("Résultat vide! : "),
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -366,7 +366,7 @@ class ThematicAnalysis(object):
         Create a progress bar when iterating over features
         """
         progressMessageBar = self.messageBar.createMessage(
-            str("Chargement des données...", "utf-8"))
+            str("Chargement des données..."))
         progress = QProgressBar()
         progress.setMinimum(0)
         progress.setMaximum(loopnumber)
@@ -496,8 +496,7 @@ class ThematicAnalysis(object):
                 self.dlg.txtMssqlQuery.setPlainText(querystring)
                 self.messageBar.pushMessage("Connexion PG",
                                             str("Définition " +
-                                                    "récupérée avec succès",
-                                                    "utf-8"),
+                                                "récupérée avec succès"),
                                             level=QgsMessageBar.INFO)
                 self.setUpAnalysisGui(datefiltering,
                                       timerangefiltering,
@@ -506,8 +505,7 @@ class ThematicAnalysis(object):
                 self.dlg.txtMssqlQuery.setPlainText("")
                 self.messageBar.pushMessage("Erreur",
                                             str("La requête n'est pas " +
-                                                    " définie dans la base",
-                                                    "utf-8"),
+                                                " définie dans la base"),
                                             level=QgsMessageBar.CRITICAL)
         else:
             self.dlg.txtMssqlQuery.setPlainText("")
@@ -525,14 +523,14 @@ class ThematicAnalysis(object):
             self.dlg.lblDateStart.show()
             self.dlg.chkLastSurvey.show()
             if timerangefiltering == 't':
-                self.dlg.lblDateStart.setText(str('Début', "utf-8"))
+                self.dlg.lblDateStart.setText(str('Début'))
                 self.dlg.lnYearEnd.show()
                 self.dlg.lblDateEnd.show()
                 self.dlg.chkLastSurvey.hide()
                 self.dlg.lnYearStart.setEnabled(True)
                 self.dlg.lblDateStart.setEnabled(True)
             else:
-                self.dlg.lblDateStart.setText(str('Année', "utf-8"))
+                self.dlg.lblDateStart.setText(str('Année'))
                 self.dlg.lnYearEnd.hide()
                 self.dlg.lblDateEnd.hide()
                 self.dlg.lblCoupeType.hide()

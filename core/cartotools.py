@@ -74,7 +74,7 @@ class CartoTools(object):
 
         # Create progress bar
         progressMessageBar = self.messageBar.createMessage(
-            str("Création des noeuds...", "utf-8"))
+            str("Création des noeuds..."))
         progress = QProgressBar()
         progress.setMinimum(0)
         progress.setMaximum(featuresCount)
@@ -133,8 +133,7 @@ class CartoTools(object):
             else:
                 self.messageBar.pushMessage("Cartotools : ",
                                             str("Type de géométrie non" +
-                                                    "supporté: " + str(type),
-                                                    "utf-8"),
+                                                    "supporté: " + str(type)),
                                             level=QgsMessageBar.CRITICAL)
 
         self.messageBar.clearWidgets()
