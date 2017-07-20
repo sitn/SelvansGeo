@@ -13,11 +13,10 @@ from qgis.gui import QgsMessageBar
 
 class ThematicAnalysis(object):
 
-    def __init__(self, iface, dlg, legendInterface, layerRegistry, pgdb, msdb):
+    def __init__(self, iface, dlg, layerRegistry, pgdb, msdb):
         """
         The ThematicAnalysis constructor
         """
-        self.legendInterface = legendInterface
         self.lReg = layerRegistry
         self.dlg = dlg
         self.pgdb = pgdb
@@ -55,8 +54,7 @@ class ThematicAnalysis(object):
             self.qtmsdb, isMSOpened = self.msdb.createQtMSDB()
             if isMSOpened:
                 self.messageBar.pushMessage("Connexion SQL Server",
-                                            str("Connexion réussie!",
-                                                    "utf-8"),
+                                            str("Connexion réussie!"),
                                             level=QgsMessageBar.INFO)
             else:
                 return
@@ -65,8 +63,7 @@ class ThematicAnalysis(object):
 
         if selectedIndex == 0:
             self.messageBar.pushMessage("Erreur ",
-                                        str("Sélectionnez une analyse!",
-                                                "utf-8"),
+                                        str("Sélectionnez une analyse!"),
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -76,8 +73,7 @@ class ThematicAnalysis(object):
 
         if self.qstr is None or self.qstr == "":
             self.messageBar.pushMessage("Erreur",
-                                        str("Requête mal définie",
-                                                "utf-8") + self.qstr,
+                                        str("Requête mal définie") + self.qstr,
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -259,16 +255,14 @@ class ThematicAnalysis(object):
 
         if analysisCreateNewLayer:
             self.messageBar.pushMessage("Avertissement",
-                                        str("La couche manquante",
-                                                "utf-8"),
+                                        str("La couche manquante"),
                                         level=QgsMessageBar.WARNING)
             self.moveLayerToGroup(analysisLayer, "Analyses SELVANS")
 
         self.activateLastAnalysis(analysisLayer)
-        self.expandGroup(analysisLayer, "Analyses SELVANS", True)
+        self.expandGroup("Analyses SELVANS", True)
 
         analysisLayer.triggerRepaint()
-        self.legendInterface.refreshLayerSymbology(analysisLayer)
 
         # Zoom to selected administration(s)
         if admFilter != '':
@@ -341,7 +335,8 @@ class ThematicAnalysis(object):
         """
         k = 0
         resultFeatures = []
-        while next(query):
+
+        while query.next():
 
             k += 1
             progress.setValue(k)
@@ -380,33 +375,30 @@ class ThematicAnalysis(object):
         """
         Move a layer to a group identified by its name
         """
-        groups = self.legendInterface.groups()
-        if groupname in groups:
-            groupIndex = groups.index(groupname)
-            self.legendInterface.moveLayer(layer, groupIndex)
+        # groups = self.legendInterface.groups()
+        # if groupname in groups:
+        #     groupIndex = groups.index(groupname)
+        #     self.legendInterface.moveLayer(layer, groupIndex)
 
-    def expandGroup(self, layer, groupname, expanded):
+    def expandGroup(self, groupname, expanded):
         """
         Expand a layer group given by its name
         """
-        groups = self.legendInterface.groups()
-        if groupname in groups:
-            groupIndex = groups.index(groupname)
-            groupIndex = groups.index(groupname)
-            self.legendInterface.setGroupExpanded(groupIndex, expanded)
+        root = QgsProject.instance().layerTreeRoot()
+        groupToExpand = root.findGroup(groupname)
+        groupToExpand.setExpanded(expanded)
+        print(dir(groupToExpand))
 
     def activateLastAnalysis(self, analysisLayer):
         """
         Activates only the last analysis layer in legend interface
         """
 
-        for i in range(self.dlg.cmbAnalysis.count()):
-            layerList = self.lReg .mapLayersByName(
-                self.dlg.cmbAnalysis.itemText(i))
-            if len(layerList) > 0:
-                self.legendInterface.setLayerVisible(layerList[0], False)
-
-        self.legendInterface.setLayerVisible(analysisLayer, True)
+        root = QgsProject.instance().layerTreeRoot()
+        sgeoGroup = root.findGroup('Analyses SELVANS')
+        sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
+        analysisLayerNode = root.findLayer(analysisLayer)
+        analysisLayerNode.setItemVisibilityChecked(True)
 
     def saveAnalysisToDisk(self, layer):
         """
@@ -483,13 +475,13 @@ class ThematicAnalysis(object):
             iter = pgLayer.getFeatures()
             for feature in iter:
                 attrs = feature.attributes()
-                idx = pgLayer.fieldNameIndex("querystring")
+                idx = pgLayer.fields().indexFromName("querystring")
                 querystring = attrs[idx]
-                idx = pgLayer.fieldNameIndex("date_filtering")
+                idx = pgLayer.fields().indexFromName("date_filtering")
                 datefiltering = attrs[idx]
-                idx = pgLayer.fieldNameIndex("timerange_filtering")
+                idx = pgLayer.fields().indexFromName("timerange_filtering")
                 timerangefiltering = attrs[idx]
-                idx = pgLayer.fieldNameIndex("coupetype_filtering")
+                idx = pgLayer.fields().indexFromName("coupetype_filtering")
                 coupetypefiltering = attrs[idx]
 
             if querystring and querystring != "":
@@ -574,37 +566,37 @@ class ThematicAnalysis(object):
             iter = pgLayer.getFeatures()
             for feature in iter:
                 attrs = feature.attributes()
-                idx = pgLayer.fieldNameIndex("id")
+                idx = pgLayer.fields().indexFromName("id")
                 analysis_id = attrs[idx]
-                idx = pgLayer.fieldNameIndex("join_target_pkfield")
+                idx = pgLayer.fields().indexFromName("join_target_pkfield")
                 join_target_pkfield = attrs[idx]
-                idx = pgLayer.fieldNameIndex("join_target_table")
+                idx = pgLayer.fields().indexFromName("join_target_table")
                 join_target_table = attrs[idx]
-                idx = pgLayer.fieldNameIndex("join_target_schema")
+                idx = pgLayer.fields().indexFromName("join_target_schema")
                 join_target_schema = attrs[idx]
-                idx = pgLayer.fieldNameIndex("join_source_fkfield")
+                idx = pgLayer.fields().indexFromName("join_source_fkfield")
                 join_source_fkfield = attrs[idx]
-                idx = pgLayer.fieldNameIndex("field_of_interest")
+                idx = pgLayer.fields().indexFromName("field_of_interest")
                 field_of_interest = attrs[idx]
-                idx = pgLayer.fieldNameIndex("field_of_interest_type")
+                idx = pgLayer.fields().indexFromName("field_of_interest_type")
                 field_of_interest_type = attrs[idx]
-                idx = pgLayer.fieldNameIndex("querystring")
+                idx = pgLayer.fields().indexFromName("querystring")
                 querystring = attrs[idx]
-                idx = pgLayer.fieldNameIndex("id")
+                idx = pgLayer.fields().indexFromName("id")
                 id = attrs[idx]
-                idx = pgLayer.fieldNameIndex("default_symbology")
+                idx = pgLayer.fields().indexFromName("default_symbology")
                 default_style = attrs[idx]
-                idx = pgLayer.fieldNameIndex("date_filtering")
+                idx = pgLayer.fields().indexFromName("date_filtering")
                 date_filtering = attrs[idx]
-                idx = pgLayer.fieldNameIndex("pie_chart")
+                idx = pgLayer.fields().indexFromName("pie_chart")
                 pie_chart = attrs[idx]
-                idx = pgLayer.fieldNameIndex("pie_chart_colors")
+                idx = pgLayer.fields().indexFromName("pie_chart_colors")
                 pie_chart_colors = attrs[idx]
-                idx = pgLayer.fieldNameIndex("datefield")
+                idx = pgLayer.fields().indexFromName("datefield")
                 datefield = attrs[idx]
-                idx = pgLayer.fieldNameIndex("timerange_filtering")
+                idx = pgLayer.fields().indexFromName("timerange_filtering")
                 timerangefiltering = attrs[idx]
-                idx = pgLayer.fieldNameIndex("coupetype_filtering")
+                idx = pgLayer.fields().indexFromName("coupetype_filtering")
                 coupetypefiltering = attrs[idx]
 
             return {"analysis_id": analysis_id,
