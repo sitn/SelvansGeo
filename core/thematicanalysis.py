@@ -5,7 +5,7 @@ from builtins import object
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
-from qgis.core import QgsCoordinateReferenceSystem, QgsLayerTreeModel
+from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
 from qgis.gui import QgsMessageBar
 
@@ -183,8 +183,8 @@ class ThematicAnalysis(object):
                               progress, fieldList,
                               params["join_source_fkfield"])
         selvansTable.updateFields()
-        self.projectInstance.addMapLayer(selvansTable)
-        self.projectInstance.addMapLayer(pgLayer)
+        self.projectInstance.addMapLayer(selvansTable, False)
+        self.projectInstance.addMapLayer(pgLayer, False)
         self.messageBar.clearWidgets()
 
         # Join the memory layer to a geographic PG layer
@@ -215,7 +215,7 @@ class ThematicAnalysis(object):
                 analysisDp.addFeatures([outFeat])
 
         analysisLayer.updateFields()
-        QgsProject.instance().addMapLayer(analysisLayer)
+        # QgsProject.instance().addMapLayer(analysisLayer)
 
         # 24.11.2016: deactivated for now
         # self.setStyleFromDb(params, pgLayer, analysisLayer)
@@ -229,14 +229,18 @@ class ThematicAnalysis(object):
 
         if analysisCreateNewLayer:
             self.messageBar.pushMessage("Avertissement",
-                                        str("La couche est manquante"),
+                                        str("La couche est manquante - " +
+                                            "mettre à jour l'impression..."),
                                         level=QgsMessageBar.WARNING)
 
-            # TODO: fix mnethode moveLayerToGroup
-            self.moveLayerToGroup(analysisLayer, "Analyses SELVANS")
+            sgeoGroup = root.findGroup('Analyses SELVANS')
+            if sgeoGroup:
+                sgeoGroup.addLayer(analysisLayer)
+            else:
+                QgsProject.instance().addMapLayer(analysisLayer)
 
         self.activateLastAnalysis(analysisLayer)
-        # self.expandGroup("Analyses SELVANS", True)
+        self.expandGroup("Analyses SELVANS", True)
 
         root = QgsProject.instance().layerTreeRoot()
         analysisLayerNode = root.findLayer(analysisLayer)
@@ -370,15 +374,6 @@ class ThematicAnalysis(object):
 
         return progress
 
-    def moveLayerToGroup(self, layer, groupname):
-        """
-        Move a layer to a group identified by its name
-        """
-        # groups = self.legendInterface.groups()
-        # if groupname in groups:
-        #     groupIndex = groups.index(groupname)
-        #     self.legendInterface.moveLayer(layer, groupIndex)
-
     def expandGroup(self, groupname, expanded):
         """
         Expand a layer group given by its name
@@ -401,7 +396,6 @@ class ThematicAnalysis(object):
             sgeoGroup.setItemVisibilityCheckedRecursive(False)
 
         if analysisLayerNode:
-            print("***ici***")
             analysisLayerNode.setItemVisibilityCheckedParentRecursive(False)
             analysisLayerNode.setItemVisibilityCheckedParentRecursive(True)
 
