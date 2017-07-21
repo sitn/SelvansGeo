@@ -5,7 +5,7 @@ from builtins import object
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
-from qgis.core import QgsCoordinateReferenceSystem
+from qgis.core import QgsCoordinateReferenceSystem, QgsLayerTreeModel
 from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
 from qgis.gui import QgsMessageBar
 
@@ -231,11 +231,15 @@ class ThematicAnalysis(object):
             self.messageBar.pushMessage("Avertissement",
                                         str("La couche est manquante"),
                                         level=QgsMessageBar.WARNING)
+
+            # TODO: fix mnethode moveLayerToGroup
             self.moveLayerToGroup(analysisLayer, "Analyses SELVANS")
 
         self.activateLastAnalysis(analysisLayer)
-        self.expandGroup("Analyses SELVANS", True)
+        # self.expandGroup("Analyses SELVANS", True)
 
+        root = QgsProject.instance().layerTreeRoot()
+        analysisLayerNode = root.findLayer(analysisLayer)
         analysisLayer.triggerRepaint()
 
         # Zoom to selected administration(s)
@@ -390,13 +394,16 @@ class ThematicAnalysis(object):
         """
 
         root = QgsProject.instance().layerTreeRoot()
+        analysisLayerNode = root.findLayer(analysisLayer)
+
         sgeoGroup = root.findGroup('Analyses SELVANS')
         if sgeoGroup:
-            sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
+            sgeoGroup.setItemVisibilityCheckedRecursive(False)
 
-        analysisLayerNode = root.findLayer(analysisLayer)
         if analysisLayerNode:
-            analysisLayerNode.setItemVisibilityChecked(True)
+            print("***ici***")
+            analysisLayerNode.setItemVisibilityCheckedParentRecursive(False)
+            analysisLayerNode.setItemVisibilityCheckedParentRecursive(True)
 
     def saveAnalysisToDisk(self, layer):
         """
