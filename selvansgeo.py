@@ -143,13 +143,14 @@ class SelvansGeo(object):
         self.msdb = SitnDB(conf['ms']['dbname'], conf['ms']['host'], "",
                            conf['ms']['user'], conf['ms']['password'],
                            "mssql", self.iface)
-
+        self.qtmsdb, isMSOpened = self.msdb.createQtMSDB()
+        # HANDLE MISSING CONNECTION HERE !!!
         # Thematic Analysis tools
         self.thematicanalysis = ThematicAnalysis(self.iface,
                                                  self.dlg,
                                                  self.layerRegistry,
                                                  self.pgdb,
-                                                 self.msdb)
+                                                 self.qtmsdb)
 
         # SelvansGeo navigation tools
         self.tabularNavigation = tabularNavigation(self.iface,

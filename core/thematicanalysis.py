@@ -7,22 +7,22 @@ from builtins import object
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
+from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
 from qgis.gui import QgsMessageBar
 
 
 class ThematicAnalysis(object):
 
-    def __init__(self, iface, dlg, layerRegistry, pgdb, msdb):
+    def __init__(self, iface, dlg, layerRegistry, pgdb, qtmsdb):
         """
         The ThematicAnalysis constructor
         """
-        self.lReg = layerRegistry
+        self.lReg = layerRegistry  # SET NAME CORRECTLY!!!
         self.dlg = dlg
         self.pgdb = pgdb
-        self.msdb = msdb
         self.qstr = ""
-        self.qtmsdb = None
+        self.qtmsdb = qtmsdb
         self.iface = iface
         self.messageBar = self.iface.messageBar()
 
@@ -30,37 +30,23 @@ class ThematicAnalysis(object):
 
         newTableName = self.dlg.cmbAnalysis.currentText()
 
-        analysisLayerList = self.lReg .mapLayersByName(newTableName)
+        analysisLayerList = self.lReg.mapLayersByName(newTableName)
         if len(analysisLayerList) == 0:
             analysisLayer = QgsVectorLayer("Polygon?crs=EPSG:2056",
                                            newTableName,
                                            "memory")
-            analysisLp = analysisLayer.dataProvider()
+            analysisDp = analysisLayer.dataProvider()
             analysisCreateNewLayer = True
         elif len(analysisLayerList) == 1:
             analysisLayer = analysisLayerList[0]
-            analysisLp = analysisLayer.dataProvider()
+            analysisDp = analysisLayer.dataProvider()
             analysisCreateNewLayer = False
 
-        # Delete all existing features in layer if applicable
-        iter = analysisLayer.getFeatures()
-        featureToDelete = []
-        for feature in iter:
-            featureToDelete.append(feature.id())
-        analysisLp.deleteFeatures(featureToDelete)
+        # Truncate data source
+        analysisDp.truncate()
 
-        # Create PyQt connection to MSSQL if not already there
-        if not self.qtmsdb:
-            self.qtmsdb, isMSOpened = self.msdb.createQtMSDB()
-            if isMSOpened:
-                self.messageBar.pushMessage("Connexion SQL Server",
-                                            str("Connexion réussie!"),
-                                            level=QgsMessageBar.INFO)
-            else:
-                return
-
+        # Check if one analysis is selected
         selectedIndex = self.dlg.cmbAnalysis.currentIndex()
-
         if selectedIndex == 0:
             self.messageBar.pushMessage("Erreur ",
                                         str("Sélectionnez une analyse!"),
@@ -70,14 +56,13 @@ class ThematicAnalysis(object):
         # Get the analysis parameters
         params = self.getAnalysisFromDb()
         self.qstr = params["querystring"]
-
         if self.qstr is None or self.qstr == "":
             self.messageBar.pushMessage("Erreur",
                                         str("Requête mal définie") + self.qstr,
                                         level=QgsMessageBar.WARNING)
             return
 
-        # Adapt connection string if applicable - method could be cleaner...
+        # Validate user inputs
         if (self.dlg.lnYearStart.text() == ""
             and params["date_filtering"] == 't'
                 and not self.dlg.chkLastSurvey.isChecked()):
@@ -99,6 +84,7 @@ class ThematicAnalysis(object):
                                         level=QgsMessageBar.CRITICAL)
             return
 
+        # Adapt connection string if applicable - method could be cleaner...
         if (params["date_filtering"] == 't'
             and not self.dlg.chkLastSurvey.isChecked()
                 and params["timerange_filtering"] == 'f'):
@@ -149,7 +135,7 @@ class ThematicAnalysis(object):
                                         level=QgsMessageBar.CRITICAL)
             return
 
-            # Execute the query and parse the results
+        # Execute the query and parse the results
         query = self.qtmsdb.exec_(self.qstr)
         query.setForwardOnly(True)
 
@@ -163,7 +149,6 @@ class ThematicAnalysis(object):
 
         # Add fields with type given as defined in table main.analysis
         fieldList = params["field_of_interest"].split(",")
-
         joinedFieldsNames = []
         if params["field_of_interest_type"] == "number":
             for fieldname in fieldList:
@@ -200,34 +185,36 @@ class ThematicAnalysis(object):
                               progress, fieldList,
                               params["join_source_fkfield"])
         selvansTable.updateFields()
-        self.lReg .addMapLayer(selvansTable)
+        self.lReg.addMapLayer(selvansTable)
+        self.lReg.addMapLayer(pgLayer)
         self.messageBar.clearWidgets()
 
         # Join the memory layer to a geographic PG layer
+        # NOTE: layers MUST be added to the project for join to work in pyQGIS
         targetlayer = self.joinLayer(pgLayer,
                                      params["join_target_pkfield"],
                                      selvansTable,
                                      params["join_source_fkfield"])
 
         # Get the fields names of the PG layer
-        fields = targetlayer.pendingFields()
+        fields = targetlayer.fields()
         fieldslist = []
-        fieldNamesTest = []
         for field in fields:
             fieldslist.append(field)
-            fieldNamesTest.append(field.name())
 
-        # Add the features to the result layer
-        analysisLp.deleteAttributes(analysisLp.attributeIndexes())
-        analysisLp.addAttributes(fieldslist)
+        # Copy the features to the result layer
+        analysisDp.deleteAttributes(analysisDp.attributeIndexes())
+        analysisLayer.updateFields()
+        analysisDp.addAttributes(fieldslist)
+        analysisLayer.updateFields()
+
         outFeat = QgsFeature()
         iter = targetlayer.getFeatures()
-
         for inFeat in iter:
             if inFeat.geometry():
                 outFeat.setGeometry(inFeat.geometry())
                 outFeat.setAttributes(inFeat.attributes())
-                analysisLp.addFeatures([outFeat])
+                analysisDp.addFeatures([outFeat])
 
         analysisLayer.updateFields()
         QgsProject.instance().addMapLayer(analysisLayer)
@@ -245,17 +232,15 @@ class ThematicAnalysis(object):
         #                                         "utf-8"),
         #                                 level=QgsMessageBar.WARNING)
 
-        if self.lReg .mapLayersByName('SELVANS'):
-            self.lReg .removeMapLayer(
-                self.lReg .mapLayersByName('SELVANS')[0].id()
-            )
+        self.lReg.removeMapLayer(selvansTable)
+        self.lReg.removeMapLayer(pgLayer)
 
         if self.dlg.chkSaveAnalysisResult.isChecked():
             self.saveAnalysisToDisk(analysisLayer)
 
         if analysisCreateNewLayer:
             self.messageBar.pushMessage("Avertissement",
-                                        str("La couche manquante"),
+                                        str("La couche est manquante"),
                                         level=QgsMessageBar.WARNING)
             self.moveLayerToGroup(analysisLayer, "Analyses SELVANS")
 
@@ -386,8 +371,8 @@ class ThematicAnalysis(object):
         """
         root = QgsProject.instance().layerTreeRoot()
         groupToExpand = root.findGroup(groupname)
-        groupToExpand.setExpanded(expanded)
-        print(dir(groupToExpand))
+        if groupToExpand:
+            groupToExpand.setExpanded(expanded)
 
     def activateLastAnalysis(self, analysisLayer):
         """
@@ -396,9 +381,10 @@ class ThematicAnalysis(object):
 
         root = QgsProject.instance().layerTreeRoot()
         sgeoGroup = root.findGroup('Analyses SELVANS')
-        sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
+        # sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
         analysisLayerNode = root.findLayer(analysisLayer)
-        analysisLayerNode.setItemVisibilityChecked(True)
+        if analysisLayerNode:
+            analysisLayerNode.setItemVisibilityChecked(True)
 
     def saveAnalysisToDisk(self, layer):
         """
@@ -406,8 +392,9 @@ class ThematicAnalysis(object):
         """
 
         fileDestination = self.dlg.txtAnalysisName.text()
+        crs = QgsCoordinateReferenceSystem("EPSG:2056")
         error = QgsVectorFileWriter.writeAsVectorFormat(
-            layer, fileDestination, "utf8", None, "ESRI Shapefile")
+            layer, fileDestination, "utf8", crs, "ESRI Shapefile")
         if error == QgsVectorFileWriter.NoError:
             self.messageBar.pushMessage("Enregistrement réussi",
                                         fileDestination,
@@ -426,7 +413,7 @@ class ThematicAnalysis(object):
             filename = QFileDialog.getSaveFileName(None,
                                                    'Enregistrer le fichier')
             self.dlg.txtAnalysisName.show()
-            self.dlg.txtAnalysisName.setText(filename + ".shp")
+            self.dlg.txtAnalysisName.setText(filename[0] + ".shp")
         else:
             self.dlg.txtAnalysisName.hide()
 
@@ -448,7 +435,7 @@ class ThematicAnalysis(object):
 
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setTargetFieldName(pkfield)
-        joinInfo.setJoinLayerId(sourcelayer.id())
+        joinInfo.setJoinLayer(sourcelayer)
         joinInfo.setJoinFieldName(fkfield)
         joinInfo.setUsingMemoryCache(True)
         targetlayer.addJoin(joinInfo)
