@@ -148,7 +148,6 @@ class SelvansGeo(object):
         # Thematic Analysis tools
         self.thematicanalysis = ThematicAnalysis(self.iface,
                                                  self.dlg,
-                                                 self.layerRegistry,
                                                  self.pgdb,
                                                  self.qtmsdb)
 

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from builtins import next
 from builtins import str
-from builtins import range
 from builtins import object
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
@@ -14,11 +12,11 @@ from qgis.gui import QgsMessageBar
 
 class ThematicAnalysis(object):
 
-    def __init__(self, iface, dlg, layerRegistry, pgdb, qtmsdb):
+    def __init__(self, iface, dlg, pgdb, qtmsdb):
         """
         The ThematicAnalysis constructor
         """
-        self.lReg = layerRegistry  # SET NAME CORRECTLY!!!
+        self.projectInstance = QgsProject.instance()  # SET NAME CORRECTLY!!!
         self.dlg = dlg
         self.pgdb = pgdb
         self.qstr = ""
@@ -30,7 +28,7 @@ class ThematicAnalysis(object):
 
         newTableName = self.dlg.cmbAnalysis.currentText()
 
-        analysisLayerList = self.lReg.mapLayersByName(newTableName)
+        analysisLayerList = self.projectInstance.mapLayersByName(newTableName)
         if len(analysisLayerList) == 0:
             analysisLayer = QgsVectorLayer("Polygon?crs=EPSG:2056",
                                            newTableName,
@@ -185,8 +183,8 @@ class ThematicAnalysis(object):
                               progress, fieldList,
                               params["join_source_fkfield"])
         selvansTable.updateFields()
-        self.lReg.addMapLayer(selvansTable)
-        self.lReg.addMapLayer(pgLayer)
+        self.projectInstance.addMapLayer(selvansTable)
+        self.projectInstance.addMapLayer(pgLayer)
         self.messageBar.clearWidgets()
 
         # Join the memory layer to a geographic PG layer
@@ -219,21 +217,12 @@ class ThematicAnalysis(object):
         analysisLayer.updateFields()
         QgsProject.instance().addMapLayer(analysisLayer)
 
-        # # Apply the style store in public.layer_styles to the result layer
-        # # 24.11.2016: deactivated for now
-        # if params["default_style"] is not None:
-        #     qmlstyle = pgLayer.getStyleFromDatabase(params["default_style"],
-        #                                             "")
-        #     analysisLayer.applyNamedStyle(qmlstyle)
-        # else:
-        #     self.messageBar.pushMessage("Erreur",
-        #                                 unicode("Style non défini dans la "
-        #                                         + "table main.analysis",
-        #                                         "utf-8"),
-        #                                 level=QgsMessageBar.WARNING)
+        # 24.11.2016: deactivated for now
+        # self.setStyleFromDb(params, pgLayer, analysisLayer)
 
-        self.lReg.removeMapLayer(selvansTable)
-        self.lReg.removeMapLayer(pgLayer)
+        # remove temporary map layers from project
+        self.projectInstance.removeMapLayer(selvansTable)
+        self.projectInstance.removeMapLayer(pgLayer)
 
         if self.dlg.chkSaveAnalysisResult.isChecked():
             self.saveAnalysisToDisk(analysisLayer)
@@ -250,6 +239,9 @@ class ThematicAnalysis(object):
         analysisLayer.triggerRepaint()
 
         # Zoom to selected administration(s)
+        self.zoomToSelectedAdministration(admFilter)
+
+    def zoomToSelectedAdministration(self, admFilter):
         if admFilter != '':
             admFilter = ' adm = \'' + admFilter
             adminSql = admFilter.replace(',', '\' OR adm = \'')
@@ -270,6 +262,24 @@ class ThematicAnalysis(object):
                                             "Administration(s)" + admFilter +
                                             " manquante dans la base PostGIS!",
                                             level=QgsMessageBar.WARNING)
+            return
+
+        else:
+            return
+
+    def setStyleFromDb(self, params, pgLayer, analysisLayer):
+
+        # Apply the style store in public.layer_styles to the result layer
+        if params["default_style"] is not None:
+            qmlstyle = pgLayer.getStyleFromDatabase(params["default_style"],
+                                                    "")
+            analysisLayer.applyNamedStyle(qmlstyle)
+        else:
+            self.messageBar.pushMessage("Erreur",
+                                        unicode("Style non défini dans la "
+                                                + "table main.analysis",
+                                                "utf-8"),
+                                        level=QgsMessageBar.WARNING)
 
     def editCoupeFilter(self, coupeFilter, coupetypefiltering):
 
@@ -381,7 +391,9 @@ class ThematicAnalysis(object):
 
         root = QgsProject.instance().layerTreeRoot()
         sgeoGroup = root.findGroup('Analyses SELVANS')
-        # sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
+        if sgeoGroup:
+            sgeoGroup.setItemVisibilityCheckedParentRecursive(False)
+
         analysisLayerNode = root.findLayer(analysisLayer)
         if analysisLayerNode:
             analysisLayerNode.setItemVisibilityChecked(True)
