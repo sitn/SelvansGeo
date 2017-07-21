@@ -8,20 +8,15 @@ from qgis.PyQt.QtWidgets import QListWidgetItem
 class tabularNavigation(object):
 
     def __init__(self,
-                 iface,
                  dlg,
-                 layerRegistry,
                  pgdb,
-                 canvas):
+                 canvas,
+                 iface):
 
-        self.layerRegistry = layerRegistry
         self.dlg = dlg
         self.pgdb = pgdb
         self.canvas = canvas
-        self.querystring = ""
-        self.iface = iface
-        self.messageBar = self.iface.messageBar()
-
+        self.messageBar = iface.messageBar()
         self.fillArr()
 
     def fillArr(self):
@@ -130,7 +125,7 @@ class tabularNavigation(object):
 
 
 """
-    Subclass the QListWidgetItem in order to have an id property
+    Subclass the QListWidgetItem to custom needs
 """
 
 

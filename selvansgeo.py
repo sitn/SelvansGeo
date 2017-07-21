@@ -152,11 +152,8 @@ class SelvansGeo(object):
                                                  self.qtmsdb)
 
         # SelvansGeo navigation tools
-        self.tabularNavigation = tabularNavigation(self.iface,
-                                                   self.dlg,
-                                                   self.layerRegistry,
-                                                   self.pgdb,
-                                                   self.canvas)
+        self.tabularNavigation = tabularNavigation(self.dlg, self.pgdb,
+                                                   self.canvas, self.iface)
 
         # Selvans cartographic tools
         self.cartotools = CartoTools(self.iface, self.dlg)
