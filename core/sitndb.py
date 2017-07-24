@@ -43,6 +43,25 @@ class SitnDB(object):
         else:
             return layer
 
+    def getStyleUri(self,
+                    shema,
+                    table,
+                    geomfieldname,
+                    whereclause,
+                    layername,
+                    uniqueidfield):
+        """
+            Returns a style URI
+        """
+
+        self.uri.setDataSource(shema,
+                               table,
+                               geomfieldname,
+                               whereclause,
+                               uniqueidfield)
+
+        return self.uri.uri()
+
     def createQtMSDB(self):
         """
             Returns a db Connection to a MSSQL (SQL Server database) using

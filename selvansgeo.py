@@ -378,7 +378,7 @@ class SelvansGeo(object):
         """
         self.dlg.cmbAnalysis.clear()
         query = "(select oid, analysis_name, id from " + \
-            "selvansgeo.analysis order by id asc)"
+            self.conf["configuration_table"] + " order by id asc)"
 
         pgLayer = self.pgdb.getLayer("", query, None, "",
                                      "Analysis list", "oid")

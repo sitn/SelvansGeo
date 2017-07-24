@@ -2,10 +2,11 @@
 
 from builtins import str
 from builtins import object
+from uuid import uuid4
 from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
-from qgis.core import QgsCoordinateReferenceSystem
+from qgis.core import QgsCoordinateReferenceSystem, QgsMapLayerStyle
 from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
 from qgis.gui import QgsMessageBar
 
@@ -220,10 +221,6 @@ class ThematicAnalysis(object):
         # 24.11.2016: deactivated for now
         # self.setStyleFromDb(params, pgLayer, analysisLayer)
 
-        # remove temporary map layers from project
-        self.projectInstance.removeMapLayer(selvansTable)
-        self.projectInstance.removeMapLayer(pgLayer)
-
         if self.dlg.chkSaveAnalysisResult.isChecked():
             self.saveAnalysisToDisk(analysisLayer)
 
@@ -233,6 +230,7 @@ class ThematicAnalysis(object):
                                             "mettre à jour l'impression..."),
                                         level=QgsMessageBar.WARNING)
 
+            root = QgsProject.instance().layerTreeRoot()
             sgeoGroup = root.findGroup('Analyses SELVANS')
             if sgeoGroup:
                 sgeoGroup.addLayer(analysisLayer)
@@ -248,6 +246,10 @@ class ThematicAnalysis(object):
 
         # Zoom to selected administration(s)
         self.zoomToSelectedAdministration(admFilter)
+
+        # remove temporary map layers from project
+        self.projectInstance.removeMapLayer(selvansTable)
+        self.projectInstance.removeMapLayer(pgLayer)
 
     def zoomToSelectedAdministration(self, admFilter):
         if admFilter != '':
@@ -265,28 +267,50 @@ class ThematicAnalysis(object):
                 admExtent = admLayer.extent()
                 self.iface.mapCanvas().setExtent(admExtent)
                 self.iface.mapCanvas().refresh()
-            else:
-                self.messageBar.pushMessage("Avertissement",
-                                            "Administration(s)" + admFilter +
-                                            " manquante dans la base PostGIS!",
-                                            level=QgsMessageBar.WARNING)
+            # else:
+                # self.messageBar.pushMessage("Avertissement",
+                #                             "Administration(s)" + admFilter +
+                #                             " manquante dans la base PostGIS!",
+                #                             level=QgsMessageBar.WARNING)
             return
 
         else:
             return
 
     def setStyleFromDb(self, params, pgLayer, analysisLayer):
-
+        # TODO: Fix method. For now API break desctiption does not define
+        # alternative method to applyNamedStyle
         # Apply the style store in public.layer_styles to the result layer
         if params["default_style"] is not None:
-            qmlstyle = pgLayer.getStyleFromDatabase(params["default_style"],
-                                                    "")
-            analysisLayer.applyNamedStyle(qmlstyle)
+
+            uri = self.pgdb.getStyleUri("public",
+                                        "layer_styles",
+                                        None,
+                                        " id = 17",
+                                        "Analysis config",
+                                        "id")
+
+            analysisLayer.loadNamedStyle(uri, result)
+            analysisLayer.triggerRepaint()
+
+            # if ok:
+            #
+            #     self.messageBar.pushMessage("Info",
+            #                                 str("Style par défaut chargé " +
+            #                                     "depuis la base" +
+            #                                     "de données"),
+            #                                 level=QgsMessageBar.INFO)
+            # else:
+            #     self.messageBar.pushMessage("Erreur",
+            #                                 str("Style pas défaut non " +
+            #                                     "valide"),
+            #                                 level=QgsMessageBar.WARNING)
+            #     print("unvalid style")
+
         else:
             self.messageBar.pushMessage("Erreur",
-                                        unicode("Style non défini dans la "
-                                                + "table main.analysis",
-                                                "utf-8"),
+                                        str("Style non défini dans la " +
+                                            "table main.analysis"),
                                         level=QgsMessageBar.WARNING)
 
     def editCoupeFilter(self, coupeFilter, coupetypefiltering):
