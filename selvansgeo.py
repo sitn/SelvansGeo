@@ -38,10 +38,8 @@ from qgis.gui import QgsMessageBar
 from . import resources
 from .selvansgeodialog import SelvansGeoDialog
 from .core.thematicanalysis import ThematicAnalysis
-from .core.cartotools import CartoTools
 from .core.sitndb import SitnDB
 from .core.tabularNavigation import tabularNavigation
-from .core.desactivateLayer import DesactivateLayerMapTool
 import webbrowser
 import yaml
 
@@ -156,8 +154,6 @@ class SelvansGeo(object):
                                                    self.canvas, self.iface)
 
         # Selvans cartographic tools
-        self.cartotools = CartoTools(self.iface, self.dlg)
-
         self.fillAnalysisCombo()
 
         # *** Connect signals and slot***
@@ -173,13 +169,6 @@ class SelvansGeo(object):
         # self.switchUiMode(True)# DEBUG MODE. COMMENT IN PRODUCTION
 
         self.dlg.cmbConnection.currentIndexChanged.connect(self.setConnectionPwdTxt)
-
-        # CartoTools
-        self.dlg.btShowNodes.clicked.connect(self.cartotools.showNodes)
-        self.dlg.btDesactivateLayer.clicked.connect(self.setDesactivateLayerTool)
-        # CALL THIS AT A BETTER PLACE!!!
-        #self.iface.mapCanvas().renderComplete.connect(self.fillLayersCombo)
-
         # Help
         self.dlg.btQgisPrintComposerHelp.clicked.connect(self.openQgisPrintHelp)
         self.dlg.btQgisHelp.clicked.connect(self.openQgisHelp)
