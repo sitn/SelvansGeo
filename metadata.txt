@@ -1,8 +1,8 @@
 [general]
 name=SelvansGeo
-qgisMinimumVersion=2.18
+qgisMinimumVersion=2.99
 description=Plugin pour l'analyse et l'édition des données spatiale du SFFN
-version=1.8.0
+version=3.0.0
 author=SITN/SFFN
 email=olivier.monod@ne.ch
 
