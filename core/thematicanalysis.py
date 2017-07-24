@@ -63,7 +63,7 @@ class ThematicAnalysis(object):
 
         # Validate user inputs
         if (self.dlg.lnYearStart.text() == ""
-            and params["date_filtering"] == 't'
+            and params["date_filtering"]
                 and not self.dlg.chkLastSurvey.isChecked()):
 
             self.messageBar.pushMessage("Erreur",
@@ -74,8 +74,8 @@ class ThematicAnalysis(object):
 
         if ((self.dlg.lnYearStart.text() == ""
             or self.dlg.lnYearEnd.text() == "")
-                and params["date_filtering"] == 't'
-                and params["timerange_filtering"] == 't'):
+                and params["date_filtering"]
+                and params["timerange_filtering"]):
 
             self.messageBar.pushMessage("Erreur",
                                         "Vous devez  saisir 2 dates"
@@ -84,9 +84,9 @@ class ThematicAnalysis(object):
             return
 
         # Adapt connection string if applicable - method could be cleaner...
-        if (params["date_filtering"] == 't'
+        if (params["date_filtering"]
             and not self.dlg.chkLastSurvey.isChecked()
-                and params["timerange_filtering"] == 'f'):
+                and not params["timerange_filtering"]):
 
             self.qstr = self.qstr.replace('--EDITTIMESELECT',
                                           ' ,' + self.dlg.lnYearStart.text() +
@@ -95,16 +95,16 @@ class ThematicAnalysis(object):
                                           ' AND ' + params["datefield"] + ' = '
                                           + self.dlg.lnYearStart.text())
 
-        if (params["date_filtering"] == 't'
+        if (params["date_filtering"]
             and self.dlg.chkLastSurvey.isChecked()
-                and params["timerange_filtering"] == 'f'):
+                and not params["timerange_filtering"]):
 
             self.qstr = self.qstr.replace('--EDITTIMESELECT',
                                           ' , max(' + params["datefield"]
                                           + ') annee ')
 
-        if (params["date_filtering"] == 't'
-                and params["timerange_filtering"] == 't'):
+        if (params["date_filtering"]
+                and params["timerange_filtering"]):
             self.qstr = self.qstr.replace('--STARTYEAR',
                                           self.dlg.lnYearStart.text())
             self.qstr = self.qstr.replace('--ENDYEAR',
@@ -136,6 +136,7 @@ class ThematicAnalysis(object):
 
         # Execute the query and parse the results
         query = self.qtmsdb.exec_(self.qstr)
+        # TODO: Check query validity
         query.setForwardOnly(True)
 
         # Create memory layer and add it to LegendInterface
@@ -165,7 +166,7 @@ class ThematicAnalysis(object):
                 joinedFieldsNames.append(joinTableName + '_' + fieldname)
 
         # Some more field are required for tables related to surveys
-        if params["date_filtering"] == 't':
+        if params["date_filtering"]:
             selvansTableProvider.addAttributes([QgsField(
                 'ANNEE_VALEUR', QVariant.Int)])
             joinedFieldsNames.append(joinTableName + '_' + 'ANNEE_VALEUR')
@@ -315,7 +316,7 @@ class ThematicAnalysis(object):
 
     def editCoupeFilter(self, coupeFilter, coupetypefiltering):
 
-        if coupetypefiltering == 't' and coupeFilter != '':
+        if coupetypefiltering and coupeFilter != '':
             subString = ''
             if len(coupeFilter.split(';')) > 1:
                 i = 0
@@ -362,9 +363,7 @@ class ThematicAnalysis(object):
         """
         k = 0
         resultFeatures = []
-
         while query.next():
-
             k += 1
             progress.setValue(k)
             record = query.record()
@@ -534,11 +533,11 @@ class ThematicAnalysis(object):
         Show/Hide the year input dates
         """
 
-        if datefiltering == 't':
+        if datefiltering:
             self.dlg.lnYearStart.show()
             self.dlg.lblDateStart.show()
             self.dlg.chkLastSurvey.show()
-            if timerangefiltering == 't':
+            if timerangefiltering:
                 self.dlg.lblDateStart.setText(str('Début'))
                 self.dlg.lnYearEnd.show()
                 self.dlg.lblDateEnd.show()
@@ -562,7 +561,7 @@ class ThematicAnalysis(object):
             self.dlg.lnYearEnd.hide()
             self.dlg.lblDateEnd.hide()
 
-        if coupetypefiltering == 't':
+        if coupetypefiltering:
             self.dlg.lblCoupeType.show()
             self.dlg.lnCoupeType.show()
         else:
