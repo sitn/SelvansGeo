@@ -23,14 +23,17 @@ class tabularNavigation(object):
         """
         Fill the arrondissements list (first geographic level)
         """
-        arrLayer = self.pgdb.getLayer("parcellaire",
-                                      "arrondissements",
-                                      "geom",
-                                      "",
-                                      "listArr",
-                                      "idobj")
 
-        features = arrLayer.getFeatures()
+        query = "(select nom, numero, idobj, geom from " + \
+                " parcellaire.arrondissements order by nom asc)"
+        arrLayer = self.pgdb.getLayer("", query, "geom", "",
+                                      "listArr", "idobj")
+
+        if arrLayer:
+            features = arrLayer.getFeatures()
+        else:
+            return
+
         i = 0
         nameList = []
         for feature in features:
@@ -57,13 +60,16 @@ class tabularNavigation(object):
         self.dlg.listAdm.clear()
         self.dlg.listDiv.clear()
         whereClause = " arrdt = '" + str(item.itemId) + "'"
-        admLayer = self.pgdb.getLayer("parcellaire",
-                                      "administrations",
-                                      "geom",
-                                      whereClause,
-                                      "listAdm",
-                                      "idobj")
-        features = admLayer.getFeatures()
+
+        query = "(select adm, idobj, geom from parcellaire.administrations" + \
+                " where " + whereClause + " order by adm asc)"
+        admLayer = self.pgdb.getLayer("", query, "geom", "",
+                                      "listAdm", "idobj")
+
+        if admLayer:
+            features = admLayer.getFeatures()
+        else:
+            return
         i = 0
 
         nameList = []
@@ -72,10 +78,8 @@ class tabularNavigation(object):
             attrs = feature.attributes()
             idx = admLayer.fields().indexFromName("adm")
             adm = attrs[idx]
-            idx = admLayer.fields().indexFromName("codeadm")
-            codeadm = attrs[idx]
             self.dlg.listAdm.addItem(
-                QSelvansListItem(codeadm,
+                QSelvansListItem(adm,
                                  adm,
                                  feature.geometry().boundingBox())
             )
@@ -100,13 +104,16 @@ class tabularNavigation(object):
         """
         self.dlg.listDiv.clear()
         whereClause = " adm = '" + item.text() + "'"
-        divLayer = self.pgdb.getLayer("parcellaire",
-                                      "divisions",
-                                      "geom",
-                                      whereClause,
-                                      "listDiv",
-                                      "idobj")
-        features = divLayer.getFeatures()
+
+        query = "(select nom, adm, idne, geom from parcellaire.divisions " +  \
+                "where " + whereClause + " order by nom asc)"
+        divLayer = self.pgdb.getLayer("", query, "geom", "", "listDiv", "idne")
+
+        if divLayer:
+            features = divLayer.getFeatures()
+        else:
+            return
+
         i = 0
         nameList = []
         for feature in features:
