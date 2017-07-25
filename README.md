@@ -21,3 +21,8 @@ Building UI for QGIS 3
 </ul>
 
 To install pyQt 5, please read http://pyqt.sourceforge.net/Docs/PyQt5/installation.html
+
+The configuration file (selvangeo.yaml) but be created before starting the plugin
+
+Simply fill the values here https://github.com/monodo/SelvansGeo/blob/qgis_3/selvansgeo.yaml_template,
+rename the file to .yaml and reload the plugin
