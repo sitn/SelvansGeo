@@ -12,7 +12,7 @@ Building UI for QGIS 2.18:
   <li>pyuic4 -o ui_selvansgeo_qgis2.py ui_selvansgeo.ui
 </ul>
 
-To instal pyQt 4, please read http://pyqt.sourceforge.net/Docs/PyQt4/installation.html
+To install pyQt 4, please read http://pyqt.sourceforge.net/Docs/PyQt4/installation.html
 
 Building UI for QGIS 3
 <ul>
@@ -20,4 +20,4 @@ Building UI for QGIS 3
   <li>pyuic5-o ui_selvansgeo.py ui_selvansgeo.ui
 </ul>
 
-To instal pyQt 5, please read http://pyqt.sourceforge.net/Docs/PyQt5/installation.html
+To install pyQt 5, please read http://pyqt.sourceforge.net/Docs/PyQt5/installation.html
