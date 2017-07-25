@@ -1,0 +1,18 @@
+vars:
+    default_project_qgis3: your_project_for_qgis3
+    default_project_qgis2: your_project_for_qgis2
+    configuration_table: selvansgeo.analysis
+    # Postgis DB configuration
+    pg:
+        host: your_pg_server
+        port: your_pg_port_in_single_quotes
+        dbname: your_pg_db
+        user: your_pg_reader_user
+        editor: your_pg_editor_user
+        password: your_pg_reader_password
+    # MSSQL SELVANS DB configuration
+    ms:
+        host: your_MSSQL_server
+        dbname: your_mssql_db
+        user: your_mssql_user
+        password: your_mssql_password
