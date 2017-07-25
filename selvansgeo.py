@@ -20,7 +20,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
 
 from builtins import str
 from builtins import object
@@ -35,13 +34,26 @@ from qgis.PyQt.QtGui import QPainter
 from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
 from qgis.core import QgsProject, QgsCredentials
 from qgis.gui import QgsMessageBar
-from . import resources
+# Backward compatibility QGIS3=>2
+try:
+    from . import resources
+except ImportError:
+    from . import resources_qgis2
 from .selvansgeodialog import SelvansGeoDialog
 from .core.thematicanalysis import ThematicAnalysis
 from .core.sitndb import SitnDB
 from .core.tabularNavigation import tabularNavigation
 import webbrowser
 import yaml
+
+# Backward compatibility QGIS3=>2
+qversion = 3
+try:
+    from qgis.core import QgsVectorLayerJoinInfo
+except ImportError:
+    qversion = 2
+
+print("***QGIS version*: " + str(qversion))
 
 # Set up current path, so that we know where to look for modules
 currentPath = os.path.dirname(__file__)
@@ -92,9 +104,14 @@ class SelvansGeo(object):
         self.readerPwd = self.conf['pg']['password']
 
         # Project paths
-        self.defaultProjectPath = currentPath + "/qgisprj/" + \
-            self.conf['default_project']
+        if qversion == 3:
+            self.defaultProjectPath = currentPath + "/qgisprj/" + \
+                self.conf['default_project_qgis3']
+        else:
+            self.defaultProjectPath = currentPath + "/qgisprj/" + \
+                self.conf['default_project_qgis2']
 
+        print(self.defaultProjectPath)
         s = QSettings()
         self.customProjectPath = s.value("SelvansGeo/customProject",
                                          self.defaultProjectPath)
@@ -214,8 +231,15 @@ class SelvansGeo(object):
     def defineDefaultProject(self):
         filename = QFileDialog.getOpenFileName(None, 'Choisir un projet')
         s = QSettings()
-        s.setValue("SelvansGeo/customProject", filename[0])
-        self.customProjectPath = filename[0]
+        # Backward compatibility QGIS3=>2
+        if qversion == 3:
+            s.setValue("SelvansGeo/customProject", filename[0])
+            self.customProjectPath = filename[0]
+        else:
+            print(filename)
+            s.setValue("SelvansGeo/customProject", filename)
+            self.customProjectPath = filename
+
         # Set label about project path
         self.dlg.lblCurrentProject.setText(self.customProjectPath)
 
@@ -271,7 +295,7 @@ class SelvansGeo(object):
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
                     self.messageBar.pushMessage("Erreur",
-                                                str("Mauvais mot de passe"),
+                                                str(u"Mauvais mot de passe"),
                                                 level=QgsMessageBar.CRITICAL)
                     self.dlg.txtPassword.setText("")
                     return
@@ -283,12 +307,12 @@ class SelvansGeo(object):
         self.switchUiMode(True)
 
         if self.currentRole != roleSelected and self.currentRole != "init":
-            self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
+            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
                                         + "mode ") +
                                         roleSelected, level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         else:
-            self.messageBar.pushMessage("Info", str("Vous êtes connecté en"
+            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
                                         + "mode ") + roleSelected,
                                         level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
@@ -307,7 +331,7 @@ class SelvansGeo(object):
         """
         Load the default SelvansGeo QGIS Project
         """
-        warningTxt = str("Ceci annulera les modifications non sauvegardée"
+        warningTxt = str(u"Ceci annulera les modifications non sauvegardée"
                              + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,

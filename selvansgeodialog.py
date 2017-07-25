@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from qgis.PyQt.QtWidgets import QDialog
-from .ui_selvansgeo import Ui_SelvansGeo
+# Backward compatibility QGIS 3=>2
+try:
+    from .ui_selvansgeo import Ui_SelvansGeo
+except ImportError:
+    from .ui_selvansgeo_qgis2 import Ui_SelvansGeo
 
 
 class SelvansGeoDialog(QDialog, Ui_SelvansGeo):

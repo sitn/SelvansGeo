@@ -7,8 +7,18 @@ from qgis.PyQt.QtCore import Qt, QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
 from qgis.core import QgsCoordinateReferenceSystem, QgsMapLayerStyle
-from qgis.core import QgsGeometry, QgsVectorFileWriter, QgsVectorLayerJoinInfo
+from qgis.core import QgsGeometry, QgsVectorFileWriter
 from qgis.gui import QgsMessageBar
+
+qversion = 3
+try:
+    from qgis.PyQt.QtCore import qVersion
+    from qgis.core import QgsVectorLayerJoinInfo
+
+except ImportError:
+    qversion = 2
+    from qgis.core import QgsVectorJoinInfo as QgsVectorLayerJoinInfo
+    from qgis.core import QgsMapLayerRegistry
 
 
 class ThematicAnalysis(object):
@@ -41,14 +51,18 @@ class ThematicAnalysis(object):
             analysisDp = analysisLayer.dataProvider()
             analysisCreateNewLayer = False
 
-        # Truncate data source
-        analysisDp.truncate()
+        # Delete all existing features in layer if applicable
+        iter = analysisLayer.getFeatures()
+        featuresToDelete = []
+        for feature in iter:
+            featuresToDelete.append(feature.id())
+        analysisDp.deleteFeatures(featuresToDelete)
 
         # Check if one analysis is selected
         selectedIndex = self.dlg.cmbAnalysis.currentIndex()
         if selectedIndex == 0:
             self.messageBar.pushMessage("Erreur ",
-                                        str("Sélectionnez une analyse!"),
+                                        str(u"Sélectionnez une analyse!"),
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -57,7 +71,7 @@ class ThematicAnalysis(object):
         self.qstr = params["querystring"]
         if self.qstr is None or self.qstr == "":
             self.messageBar.pushMessage("Erreur",
-                                        str("Requête mal définie") + self.qstr,
+                                        str(u"Requête mal définie") + self.qstr,
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -227,8 +241,8 @@ class ThematicAnalysis(object):
 
         if analysisCreateNewLayer:
             self.messageBar.pushMessage("Avertissement",
-                                        str("La couche est manquante - " +
-                                            "mettre à jour l'impression..."),
+                                        str(u"La couche est manquante - " +
+                                            u"mettre à jour l'impression..."),
                                         level=QgsMessageBar.WARNING)
 
             root = QgsProject.instance().layerTreeRoot()
@@ -239,18 +253,24 @@ class ThematicAnalysis(object):
                 QgsProject.instance().addMapLayer(analysisLayer)
 
         self.activateLastAnalysis(analysisLayer)
-        self.expandGroup("Analyses SELVANS", True)
+        if qversion == 3:
+            self.expandGroup("Analyses SELVANS", True)
+        else:
+            print("handle that too")
 
-        root = QgsProject.instance().layerTreeRoot()
-        analysisLayerNode = root.findLayer(analysisLayer)
         analysisLayer.triggerRepaint()
 
         # Zoom to selected administration(s)
         self.zoomToSelectedAdministration(admFilter)
 
         # remove temporary map layers from project
-        self.projectInstance.removeMapLayer(selvansTable)
-        self.projectInstance.removeMapLayer(pgLayer)
+        # Backward compatibility QGIS3=>2
+        if qversion == 3:
+            self.projectInstance.removeMapLayer(selvansTable)
+            self.projectInstance.removeMapLayer(pgLayer)
+        else:
+            print("handle that")
+
 
     def zoomToSelectedAdministration(self, admFilter):
         if admFilter != '':
@@ -297,20 +317,20 @@ class ThematicAnalysis(object):
             # if ok:
             #
             #     self.messageBar.pushMessage("Info",
-            #                                 str("Style par défaut chargé " +
+            #                                 str(u"Style par défaut chargé " +
             #                                     "depuis la base" +
             #                                     "de données"),
             #                                 level=QgsMessageBar.INFO)
             # else:
             #     self.messageBar.pushMessage("Erreur",
-            #                                 str("Style pas défaut non " +
+            #                                 str(u"Style pas défaut non " +
             #                                     "valide"),
             #                                 level=QgsMessageBar.WARNING)
             #     print("unvalid style")
 
         else:
             self.messageBar.pushMessage("Erreur",
-                                        str("Style non défini dans la " +
+                                        str(u"Style non défini dans la " +
                                             "table main.analysis"),
                                         level=QgsMessageBar.WARNING)
 
@@ -378,7 +398,7 @@ class ThematicAnalysis(object):
 
         if k == 0:
             self.messageBar.pushMessage("Attention",
-                                        str("Résultat vide! : "),
+                                        str(u"Résultat vide! : "),
                                         level=QgsMessageBar.WARNING)
             return
 
@@ -387,7 +407,7 @@ class ThematicAnalysis(object):
         Create a progress bar when iterating over features
         """
         progressMessageBar = self.messageBar.createMessage(
-            str("Chargement des données..."))
+            str(u"Chargement des données..."))
         progress = QProgressBar()
         progress.setMinimum(0)
         progress.setMaximum(loopnumber)
@@ -410,17 +430,28 @@ class ThematicAnalysis(object):
         """
         Activates only the last analysis layer in legend interface
         """
+        # Backward compatibility QGIS 3=>2
+        if qversion == 3:
+            root = QgsProject.instance().layerTreeRoot()
+            analysisLayerNode = root.findLayer(analysisLayer)
 
-        root = QgsProject.instance().layerTreeRoot()
-        analysisLayerNode = root.findLayer(analysisLayer)
+            sgeoGroup = root.findGroup('Analyses SELVANS')
+            if sgeoGroup:
+                sgeoGroup.setItemVisibilityCheckedRecursive(False)
 
-        sgeoGroup = root.findGroup('Analyses SELVANS')
-        if sgeoGroup:
-            sgeoGroup.setItemVisibilityCheckedRecursive(False)
+            if analysisLayerNode:
+                analysisLayerNode.setItemVisibilityCheckedParentRecursive(False)
+                analysisLayerNode.setItemVisibilityCheckedParentRecursive(True)
+        else:
+            lReg = QgsMapLayerRegistry.instance()
+            legendInterface = self.iface.legendInterface()
+            for i in range(self.dlg.cmbAnalysis.count()):
+                layerList = lReg.mapLayersByName(
+                    self.dlg.cmbAnalysis.itemText(i))
+                if len(layerList) > 0:
+                    legendInterface.setLayerVisible(layerList[0], False)
 
-        if analysisLayerNode:
-            analysisLayerNode.setItemVisibilityCheckedParentRecursive(False)
-            analysisLayerNode.setItemVisibilityCheckedParentRecursive(True)
+            legendInterface.setLayerVisible(analysisLayer, True)
 
     def saveAnalysisToDisk(self, layer):
         """
@@ -449,7 +480,11 @@ class ThematicAnalysis(object):
             filename = QFileDialog.getSaveFileName(None,
                                                    'Enregistrer le fichier')
             self.dlg.txtAnalysisName.show()
-            self.dlg.txtAnalysisName.setText(filename[0] + ".shp")
+            # Backward compatibility QGIS3=>2
+            if qversion == 3:
+                self.dlg.txtAnalysisName.setText(filename[0] + ".shp")
+            else:
+                self.dlg.txtAnalysisName.setText(filename + ".shp")
         else:
             self.dlg.txtAnalysisName.hide()
 
@@ -470,10 +505,17 @@ class ThematicAnalysis(object):
         """
 
         joinInfo = QgsVectorLayerJoinInfo()
-        joinInfo.setTargetFieldName(pkfield)
-        joinInfo.setJoinLayer(sourcelayer)
-        joinInfo.setJoinFieldName(fkfield)
-        joinInfo.setUsingMemoryCache(True)
+        # Backward compatbility QGIS3=>2
+        if qversion == 3:
+            joinInfo.setTargetFieldName(pkfield)
+            joinInfo.setJoinLayer(sourcelayer)
+            joinInfo.setJoinFieldName(fkfield)
+            joinInfo.setUsingMemoryCache(True)
+        else:  # QGIS 2
+            joinInfo.targetFieldName = pkfield
+            joinInfo.joinLayerId = sourcelayer.id()
+            joinInfo.joinFieldName = fkfield
+            joinInfo.memoryCache = True
         targetlayer.addJoin(joinInfo)
         targetlayer.updateFields()
         return targetlayer
@@ -484,6 +526,7 @@ class ThematicAnalysis(object):
         """
 
         selectedIndex = self.dlg.cmbAnalysis.currentIndex()
+
         if selectedIndex > 0:
             selectedAnalysis = self.dlg.cmbAnalysis.itemData(selectedIndex)
             queryString = "select * from selvansgeo.analysis where id = "
@@ -501,17 +544,17 @@ class ThematicAnalysis(object):
                 idx = pgLayer.fields().indexFromName("querystring")
                 querystring = attrs[idx]
                 idx = pgLayer.fields().indexFromName("date_filtering")
-                datefiltering = attrs[idx]
+                datefiltering = self.toBool(attrs[idx])
                 idx = pgLayer.fields().indexFromName("timerange_filtering")
-                timerangefiltering = attrs[idx]
+                timerangefiltering = self.toBool(attrs[idx])
                 idx = pgLayer.fields().indexFromName("coupetype_filtering")
-                coupetypefiltering = attrs[idx]
+                coupetypefiltering = self.toBool(attrs[idx])
 
             if querystring and querystring != "":
                 self.dlg.txtMssqlQuery.setPlainText(querystring)
                 self.messageBar.pushMessage("Connexion PG",
-                                            str("Définition " +
-                                                "récupérée avec succès"),
+                                            str(u"Définition " +
+                                                u"récupérée avec succès"),
                                             level=QgsMessageBar.INFO)
                 self.setUpAnalysisGui(datefiltering,
                                       timerangefiltering,
@@ -519,11 +562,22 @@ class ThematicAnalysis(object):
             else:
                 self.dlg.txtMssqlQuery.setPlainText("")
                 self.messageBar.pushMessage("Erreur",
-                                            str("La requête n'est pas " +
-                                                " définie dans la base"),
+                                            str(u"La requête n'est pas " +
+                                                u" définie dans la base"),
                                             level=QgsMessageBar.CRITICAL)
         else:
             self.dlg.txtMssqlQuery.setPlainText("")
+
+    # Backward compatbility QGIS3=>2 weird bool type issue handling
+    def toBool(self, var):
+
+        if type(var) == bool:
+            return var
+
+        if var == 'f':
+            return False
+        else:
+            return True
 
     def setUpAnalysisGui(self,
                          datefiltering,
@@ -532,20 +586,19 @@ class ThematicAnalysis(object):
         """
         Show/Hide the year input dates
         """
-
         if datefiltering:
             self.dlg.lnYearStart.show()
             self.dlg.lblDateStart.show()
             self.dlg.chkLastSurvey.show()
             if timerangefiltering:
-                self.dlg.lblDateStart.setText(str('Début'))
+                self.dlg.lblDateStart.setText(str(u'Début'))
                 self.dlg.lnYearEnd.show()
                 self.dlg.lblDateEnd.show()
                 self.dlg.chkLastSurvey.hide()
                 self.dlg.lnYearStart.setEnabled(True)
                 self.dlg.lblDateStart.setEnabled(True)
             else:
-                self.dlg.lblDateStart.setText(str('Année'))
+                self.dlg.lblDateStart.setText(str(u'Année'))
                 self.dlg.lnYearEnd.hide()
                 self.dlg.lblDateEnd.hide()
                 self.dlg.lblCoupeType.hide()
@@ -632,10 +685,10 @@ class ThematicAnalysis(object):
                     "field_of_interest_type": field_of_interest_type,
                     "querystring": querystring,
                     "default_style": default_style,
-                    "date_filtering": date_filtering,
+                    "date_filtering": self.toBool(date_filtering),
                     "id": id,
                     "pie_chart": pie_chart,
                     "pie_chart_colors": pie_chart_colors,
                     "datefield": datefield,
-                    "timerange_filtering": timerangefiltering,
-                    "coupetype_filtering": coupetypefiltering}
+                    "timerange_filtering": self.toBool(timerangefiltering),
+                    "coupetype_filtering": self.toBool(coupetypefiltering)}
