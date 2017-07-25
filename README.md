@@ -26,3 +26,6 @@ The configuration file (selvangeo.yaml) must be created before starting the plug
 
 Simply fill the values here https://github.com/monodo/SelvansGeo/blob/qgis_3/selvansgeo.yaml_template,
 rename the file to .yaml and reload the plugin
+
+Example of analysis output: tree volume by hectare at last surveys
+![Volume by hectare](/images/example.png?raw=true "Volume by hectare")
