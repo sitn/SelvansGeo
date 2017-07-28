@@ -4,6 +4,7 @@ from builtins import str
 from builtins import object
 from uuid import uuid4
 from qgis.PyQt.QtCore import Qt, QVariant
+from qgis.PyQt.QtXml import QDomDocument
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
 from qgis.core import QgsCoordinateReferenceSystem, QgsMapLayerStyle
@@ -233,9 +234,6 @@ class ThematicAnalysis(object):
         analysisLayer.updateFields()
         # QgsProject.instance().addMapLayer(analysisLayer)
 
-        # 24.11.2016: deactivated for now
-        # self.setStyleFromDb(params, pgLayer, analysisLayer)
-
         if self.dlg.chkSaveAnalysisResult.isChecked():
             self.saveAnalysisToDisk(analysisLayer)
 
@@ -257,7 +255,8 @@ class ThematicAnalysis(object):
             self.expandGroup("Analyses SELVANS", True)
         else:
             print("handle that too")
-
+        # 24.11.2016: deactivated for now
+        self.setStyleFromDb(params, pgLayer, analysisLayer)
         analysisLayer.triggerRepaint()
 
         # Zoom to selected administration(s)
@@ -299,34 +298,37 @@ class ThematicAnalysis(object):
             return
 
     def setStyleFromDb(self, params, pgLayer, analysisLayer):
-        # TODO: Fix method. For now API break desctiption does not define
-        # alternative method to applyNamedStyle
-        # Apply the style store in public.layer_styles to the result layer
-        if params["default_style"] is not None:
+        # Apply the style stored in public.layer_styles to the result layer
 
-            uri = self.pgdb.getStyleUri("public",
-                                        "layer_styles",
-                                        None,
-                                        " id = 17",
-                                        "Analysis config",
-                                        "id")
+        if qversion != 3:
+            self.messageBar.pushMessage("Avertissement",
+                                        str(u"Le style par défaut n'est pas " +
+                                            u"chargé dans QGIS 2.18"),
+                                        level=QgsMessageBar.WARNING)
+            return
 
-            analysisLayer.loadNamedStyle(uri, result)
-            analysisLayer.triggerRepaint()
+        p = params["default_style"]
+        if p is not None and str(p) != 'NULL':
+            qmlstyle = pgLayer.getStyleFromDatabase(params["default_style"])
+            qDoc = QDomDocument(params["default_style"])
+            qDoc.setContent(qmlstyle[0])
+            if qversion == 3:
+                styleOk = analysisLayer.importNamedStyle(qDoc)
+            else:
+                styleOk = analysisLayer.loadNamedStyle(qDoc)
 
-            # if ok:
-            #
-            #     self.messageBar.pushMessage("Info",
-            #                                 str(u"Style par défaut chargé " +
-            #                                     "depuis la base" +
-            #                                     "de données"),
-            #                                 level=QgsMessageBar.INFO)
-            # else:
-            #     self.messageBar.pushMessage("Erreur",
-            #                                 str(u"Style pas défaut non " +
-            #                                     "valide"),
-            #                                 level=QgsMessageBar.WARNING)
-            #     print("unvalid style")
+            if styleOk[0]:
+
+                self.messageBar.pushMessage("Info",
+                                            str(u"Style par défaut chargé " +
+                                                "depuis la base" +
+                                                "de données"),
+                                            level=QgsMessageBar.INFO)
+            else:
+                self.messageBar.pushMessage("Erreur",
+                                            str(u"Style pas défaut non " +
+                                                "valide"),
+                                            level=QgsMessageBar.WARNING)
 
         else:
             self.messageBar.pushMessage("Erreur",
