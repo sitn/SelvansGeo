@@ -1,5 +1,6 @@
 qgisprj/*.qgs~
 qgisprj/*.qgs
+qgisprj/*.qgd
 *.pyc
 *.yaml
 *.bat
