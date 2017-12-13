@@ -21,31 +21,46 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import object
 import os.path
 import sys
-from PyQt4.QtCore import QSettings, QTranslator, QCoreApplication, QObject
-from PyQt4.QtCore import SIGNAL
-from PyQt4.QtSql import QSqlDatabase
-from PyQt4.QtGui import QAction, QIntValidator, QIcon
-from PyQt4.QtGui import QPainter, QListWidgetItem, QFileDialog, QMessageBox
-from qgis.core import QgsProject, QgsCredentials, QgsMapLayerRegistry
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject
+
+from qgis.PyQt.QtSql import QSqlDatabase
+from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon, QIntValidator
+from qgis.PyQt.QtGui import QPainter
+from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
+from qgis.core import QgsProject, QgsCredentials
 from qgis.gui import QgsMessageBar
-import resources
-from selvansgeodialog import SelvansGeoDialog
+# Backward compatibility QGIS3=>2
+try:
+    from . import resources
+except ImportError:
+    from . import resources_qgis2
+from .selvansgeodialog import SelvansGeoDialog
 from .core.thematicanalysis import ThematicAnalysis
-from .core.cartotools import CartoTools
 from .core.sitndb import SitnDB
 from .core.tabularNavigation import tabularNavigation
-from .core.desactivateLayer import DesactivateLayerMapTool
 import webbrowser
 import yaml
+
+# Backward compatibility QGIS3=>2
+qversion = 3
+try:
+    from qgis.core import QgsVectorLayerJoinInfo
+except ImportError:
+    qversion = 2
+
+print("***QGIS version*: " + str(qversion))
 
 # Set up current path, so that we know where to look for modules
 currentPath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
 
 
-class SelvansGeo:
+class SelvansGeo(object):
 
     def __init__(self, iface):
         """
@@ -64,13 +79,10 @@ class SelvansGeo:
         self.canvas = self.iface.mapCanvas()
 
         # Get reference to legend interface
-        self.legendInterface = self.iface.legendInterface()
+        self.legendInterface = None #self.iface.legendInterface()
 
         # Get reference to the legend interface
-        self.layerRegistry = QgsMapLayerRegistry.instance()
-
-        # Get reference to the Project interface
-        self.projectInterface = QgsProject.instance()
+        self.layerRegistry = QgsProject.instance()
 
         # Create the GUI Dialog
         self.dlg = SelvansGeoDialog()
@@ -92,9 +104,14 @@ class SelvansGeo:
         self.readerPwd = self.conf['pg']['password']
 
         # Project paths
-        self.defaultProjectPath = currentPath + "/qgisprj/" + \
-            self.conf['default_project']
+        if qversion == 3:
+            self.defaultProjectPath = currentPath + "/qgisprj/" + \
+                self.conf['default_project_qgis3']
+        else:
+            self.defaultProjectPath = currentPath + "/qgisprj/" + \
+                self.conf['default_project_qgis2']
 
+        print(self.defaultProjectPath)
         s = QSettings()
         self.customProjectPath = s.value("SelvansGeo/customProject",
                                          self.defaultProjectPath)
@@ -141,95 +158,51 @@ class SelvansGeo:
         self.msdb = SitnDB(conf['ms']['dbname'], conf['ms']['host'], "",
                            conf['ms']['user'], conf['ms']['password'],
                            "mssql", self.iface)
-
+        self.qtmsdb, isMSOpened = self.msdb.createQtMSDB()
+        # HANDLE MISSING CONNECTION HERE !!!
         # Thematic Analysis tools
         self.thematicanalysis = ThematicAnalysis(self.iface,
                                                  self.dlg,
-                                                 self.legendInterface,
-                                                 self.layerRegistry,
                                                  self.pgdb,
-                                                 self.msdb)
+                                                 self.qtmsdb)
 
         # SelvansGeo navigation tools
-        self.tabularNavigation = tabularNavigation(self.iface,
-                                                   self.dlg,
-                                                   self.legendInterface,
-                                                   self.layerRegistry,
-                                                   self.pgdb,
-                                                   self.canvas)
+        self.tabularNavigation = tabularNavigation(self.dlg, self.pgdb,
+                                                   self.canvas, self.iface)
 
         # Selvans cartographic tools
-        self.cartotools = CartoTools(self.iface, self.dlg)
-
         self.fillAnalysisCombo()
 
         # *** Connect signals and slot***
 
         # Project
-        QObject.connect(self.dlg.btLoadProject, SIGNAL("clicked()"),
-                        self.openSelvansGeoProject)
-        QObject.connect(self.dlg.btDefineDefaultProject, SIGNAL("clicked()"),
-                        self.defineDefaultProject)
-        QObject.connect(self.dlg.btResetDefaultProject, SIGNAL("clicked()"),
-                        self.resetDefaultProject)
+        self.dlg.btLoadProject.clicked.connect(self.openSelvansGeoProject)
+        self.dlg.btDefineDefaultProject.clicked.connect(self.defineDefaultProject)
+        self.dlg.btResetDefaultProject.clicked.connect(self.resetDefaultProject)
 
         # Connection
-        QObject.connect(self.dlg.btConnection,
-                        SIGNAL("clicked()"), self.connectionsInit)
+        self.dlg.btConnection.clicked.connect(self.connectionsInit)
 
         # self.switchUiMode(True)# DEBUG MODE. COMMENT IN PRODUCTION
 
-        QObject.connect(self.dlg.cmbConnection,
-                        SIGNAL("currentIndexChanged(int)"),
-                        self.setConnectionPwdTxt)
-
-        # CartoTools
-        QObject.connect(self.dlg.btShowNodes,
-                        SIGNAL("clicked()"), self.cartotools.showNodes)
-        QObject.connect(self.dlg.btDesactivateLayer, SIGNAL("clicked()"),
-                        self.setDesactivateLayerTool)
-        QObject.connect(self.iface.mapCanvas(),
-                        SIGNAL("renderComplete(QPainter *)"),
-                        self.fillLayersCombo)
-
+        self.dlg.cmbConnection.currentIndexChanged.connect(self.setConnectionPwdTxt)
         # Help
-        QObject.connect(self.dlg.btQgisPrintComposerHelp,
-                        SIGNAL("clicked()"), self.openQgisPrintHelp)
-        QObject.connect(self.dlg.btQgisHelp, SIGNAL("clicked()"),
-                        self.openQgisHelp)
-        QObject.connect(self.dlg.btSelvansGeoHelp, SIGNAL("clicked()"),
-                        self.openSelvansGeoHelp)
+        self.dlg.btQgisPrintComposerHelp.clicked.connect(self.openQgisPrintHelp)
+        self.dlg.btQgisHelp.clicked.connect(self.openQgisHelp)
+        self.dlg.btSelvansGeoHelp.clicked.connect(self.openSelvansGeoHelp)
 
         # Navigation tools
-        QObject.connect(self.dlg.listArr,
-                        SIGNAL("itemClicked(QListWidgetItem *)"),
-                        self.tabularNavigation.selectAdministration)
-        QObject.connect(self.dlg.listAdm,
-                        SIGNAL("itemClicked(QListWidgetItem *)"),
-                        self.tabularNavigation.selectDivision)
-        QObject.connect(self.dlg.listAdm,
-                        SIGNAL("itemDoubleClicked(QListWidgetItem *)"),
-                        self.tabularNavigation.zoomToSelectedAdministration)
-        QObject.connect(self.dlg.listDiv,
-                        SIGNAL("itemDoubleClicked(QListWidgetItem *)"),
-                        self.tabularNavigation.zoomToSelectedDivision)
+        self.dlg.listArr.itemClicked.connect(self.tabularNavigation.selectAdministration)
+        self.dlg.listAdm.itemClicked.connect(self.tabularNavigation.selectDivision)
+        self.dlg.listAdm.itemDoubleClicked.connect(self.tabularNavigation.zoomToSelectedAdministration)
+        self.dlg.listDiv.itemDoubleClicked.connect(self.tabularNavigation.zoomToSelectedDivision)
 
         # Thematic analysis
-        QObject.connect(self.dlg.btAnalysis,
-                        SIGNAL("clicked()"),
-                        self.thematicanalysis.createAnalysis)
-        QObject.connect(self.dlg.btAdvancedUserMode,
-                        SIGNAL("clicked()"),
-                        self.analysisAdvancedUserMode)
-        QObject.connect(self.dlg.cmbAnalysis,
-                        SIGNAL("currentIndexChanged(int)"),
-                        self.thematicanalysis.getQueryStringFromDb)
-        QObject.connect(self.dlg.chkSaveAnalysisResult,
-                        SIGNAL("stateChanged(int)"),
-                        self.thematicanalysis.openFileDialog)
-        QObject.connect(self.dlg.chkLastSurvey,
-                        SIGNAL("stateChanged(int)"),
-                        self.thematicanalysis.checkLastSurvey)
+        self.dlg.btAnalysis.clicked.connect(self.thematicanalysis.createAnalysis)
+        self.dlg.btAdvancedUserMode.clicked.connect(self.analysisAdvancedUserMode)
+        self.dlg.cmbAnalysis.currentIndexChanged.connect(self.thematicanalysis.getQueryStringFromDb)
+        self.dlg.chkSaveAnalysisResult.stateChanged.connect(self.thematicanalysis.openFileDialog)
+        self.dlg.chkLastSurvey.stateChanged.connect(self.thematicanalysis.checkLastSurvey)
 
         self.dlg.lnYearStart.setValidator(QIntValidator())
         self.dlg.lnYearStart.setMaxLength(4)
@@ -258,9 +231,16 @@ class SelvansGeo:
     def defineDefaultProject(self):
         filename = QFileDialog.getOpenFileName(None, 'Choisir un projet')
         s = QSettings()
-        s.setValue("SelvansGeo/customProject", filename)
-        self.customProjectPath = filename
-        # Set label about project paths
+        # Backward compatibility QGIS3=>2
+        if qversion == 3:
+            s.setValue("SelvansGeo/customProject", filename[0])
+            self.customProjectPath = filename[0]
+        else:
+            print(filename)
+            s.setValue("SelvansGeo/customProject", filename)
+            self.customProjectPath = filename
+
+        # Set label about project path
         self.dlg.lblCurrentProject.setText(self.customProjectPath)
 
     def resetDefaultProject(self):
@@ -315,9 +295,7 @@ class SelvansGeo:
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
                     self.messageBar.pushMessage("Erreur",
-                                                unicode("Mot de passe"
-                                                        + "non valide ",
-                                                        "utf-8"),
+                                                str(u"Mauvais mot de passe"),
                                                 level=QgsMessageBar.CRITICAL)
                     self.dlg.txtPassword.setText("")
                     return
@@ -329,13 +307,13 @@ class SelvansGeo:
         self.switchUiMode(True)
 
         if self.currentRole != roleSelected and self.currentRole != "init":
-            self.messageBar.pushMessage("Info", unicode("Vous êtes connecté en"
-                                        + "mode ", "utf-8") +
+            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
+                                        + "mode ") +
                                         roleSelected, level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         else:
-            self.messageBar.pushMessage("Info", unicode("Vous êtes connecté en"
-                                        + "mode ", "utf-8") + roleSelected,
+            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
+                                        + "mode ") + roleSelected,
                                         level=QgsMessageBar.INFO)
             self.openSelvansGeoProject()
         # store the current role
@@ -353,8 +331,8 @@ class SelvansGeo:
         """
         Load the default SelvansGeo QGIS Project
         """
-        warningTxt = unicode("Ceci annulera les modifications non sauvegardée"
-                             + "du projet QGIS ouvert actuellement", 'utf-8')
+        warningTxt = str(u"Ceci annulera les modifications non sauvegardée"
+                             + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
                                      QMessageBox.Ok | QMessageBox.Cancel,
@@ -413,7 +391,7 @@ class SelvansGeo:
         """
         self.dlg.cmbAnalysis.clear()
         query = "(select oid, analysis_name, id from " + \
-            "selvansgeo.analysis order by id asc)"
+            self.conf["configuration_table"] + " order by id asc)"
 
         pgLayer = self.pgdb.getLayer("", query, None, "",
                                      "Analysis list", "oid")
@@ -421,9 +399,9 @@ class SelvansGeo:
         iter = pgLayer.getFeatures()
         for feature in iter:
             attrs = feature.attributes()
-            idx = pgLayer.fieldNameIndex("analysis_name")
+            idx = pgLayer.fields().indexFromName("analysis_name")
             analysis_name = attrs[idx]
-            idx = pgLayer.fieldNameIndex("id")
+            idx = pgLayer.fields().indexFromName("id")
             id = attrs[idx]
             self.dlg.cmbAnalysis.addItem(analysis_name, str(id))
 
@@ -440,9 +418,9 @@ class SelvansGeo:
         iter = pgLayer.getFeatures()
         for feature in iter:
             attrs = feature.attributes()
-            idx = pgLayer.fieldNameIndex("adm")
+            idx = pgLayer.fields().indexFromName("adm")
             administration_name = attrs[idx]
-            idx = pgLayer.fieldNameIndex("idobj")
+            idx = pgLayer.fields().indexFromName("idobj")
             id = attrs[idx]
             self.dlg.cmbAdminFilter.addItem(administration_name, str(idobj))
 
@@ -451,7 +429,7 @@ class SelvansGeo:
         Fill the QComboBox with the list of geometric layers
         """
         self.dlg.comboLayers.clear()
-        layers = self.legendInterface.layers()
+        layers = QgsProject.instance().layers()
         for layer in layers:
             # Load only vector layers
             if layer.type() == 0 and layer.name() != 'Noeuds':
@@ -471,6 +449,7 @@ class SelvansGeo:
         show the dialog
         """
         self.dlg.show()
-        self.fillLayersCombo()
+        # CALL THIS, REALLY ???
+        #self.fillLayersCombo()
         # Run the dialog event loop
         self.dlg.exec_()

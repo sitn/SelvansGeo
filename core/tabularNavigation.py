@@ -1,49 +1,47 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QListWidgetItem
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtWidgets import QListWidgetItem
 
 
-class tabularNavigation:
+class tabularNavigation(object):
 
     def __init__(self,
-                 iface,
                  dlg,
-                 legendInterface,
-                 layerRegistry,
                  pgdb,
-                 canvas):
+                 canvas,
+                 iface):
 
-        self.legendInterface = legendInterface
-        self.layerRegistry = layerRegistry
         self.dlg = dlg
         self.pgdb = pgdb
         self.canvas = canvas
-        self.querystring = ""
-        self.iface = iface
-        self.messageBar = self.iface.messageBar()
-
+        self.messageBar = iface.messageBar()
         self.fillArr()
 
     def fillArr(self):
         """
         Fill the arrondissements list (first geographic level)
         """
-        arrLayer = self.pgdb.getLayer("parcellaire",
-                                      "arrondissements",
-                                      "geom",
-                                      "",
-                                      "listArr",
-                                      "idobj")
 
-        features = arrLayer.getFeatures()
+        query = "(select nom, numero, idobj, geom from " + \
+                " parcellaire.arrondissements order by nom asc)"
+        arrLayer = self.pgdb.getLayer("", query, "geom", "",
+                                      "listArr", "idobj")
+
+        if arrLayer:
+            features = arrLayer.getFeatures()
+        else:
+            return
+
         i = 0
         nameList = []
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = arrLayer.fieldNameIndex("nom")
+            idx = arrLayer.fields().indexFromName("nom")
             name = attrs[idx]
-            idx = arrLayer.fieldNameIndex("numero")
+            idx = arrLayer.fields().indexFromName("numero")
             numero = attrs[idx]
             if name not in nameList:
                 nameList.append(name)
@@ -62,25 +60,26 @@ class tabularNavigation:
         self.dlg.listAdm.clear()
         self.dlg.listDiv.clear()
         whereClause = " arrdt = '" + str(item.itemId) + "'"
-        admLayer = self.pgdb.getLayer("parcellaire",
-                                      "administrations",
-                                      "geom",
-                                      whereClause,
-                                      "listAdm",
-                                      "idobj")
-        features = admLayer.getFeatures()
+
+        query = "(select adm, idobj, geom from parcellaire.administrations" + \
+                " where " + whereClause + " order by adm asc)"
+        admLayer = self.pgdb.getLayer("", query, "geom", "",
+                                      "listAdm", "idobj")
+
+        if admLayer:
+            features = admLayer.getFeatures()
+        else:
+            return
         i = 0
 
         nameList = []
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = admLayer.fieldNameIndex("adm")
+            idx = admLayer.fields().indexFromName("adm")
             adm = attrs[idx]
-            idx = admLayer.fieldNameIndex("codeadm")
-            codeadm = attrs[idx]
             self.dlg.listAdm.addItem(
-                QSelvansListItem(codeadm,
+                QSelvansListItem(adm,
                                  adm,
                                  feature.geometry().boundingBox())
             )
@@ -105,33 +104,35 @@ class tabularNavigation:
         """
         self.dlg.listDiv.clear()
         whereClause = " adm = '" + item.text() + "'"
-        divLayer = self.pgdb.getLayer("parcellaire",
-                                      "divisions",
-                                      "geom",
-                                      whereClause,
-                                      "listDiv",
-                                      "idobj")
-        features = divLayer.getFeatures()
+
+        query = "(select nom, adm, idne, geom from parcellaire.divisions " +  \
+                "where " + whereClause + " order by nom asc)"
+        divLayer = self.pgdb.getLayer("", query, "geom", "", "listDiv", "idne")
+
+        if divLayer:
+            features = divLayer.getFeatures()
+        else:
+            return
+
         i = 0
         nameList = []
         for feature in features:
             i += 1
             attrs = feature.attributes()
-            idx = divLayer.fieldNameIndex("nom")
+            idx = divLayer.fields().indexFromName("nom")
             nomdiv = attrs[idx]
-            idx = divLayer.fieldNameIndex("adm")
+            idx = divLayer.fields().indexFromName("adm")
             nomadm = attrs[idx]
-            idx = divLayer.fieldNameIndex("idne")
+            idx = divLayer.fields().indexFromName("idne")
             idne = attrs[idx]
             self.dlg.listDiv.addItem(
-                QSelvansListItem(idne,
-                                 unicode(str(nomadm) + str(nomdiv), "utf-8"),
+                QSelvansListItem(idne, str(nomadm) + str(nomdiv),
                                  feature.geometry().boundingBox())
              )
 
 
 """
-    Subclass the QListWidgetItem in order to have an id property
+    Subclass the QListWidgetItem to custom needs
 """
 
 

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtSql import QSqlDatabase
-from qgis.core import QgsDataSourceURI, QgsVectorLayer
+from builtins import object
+from qgis.PyQt.QtSql import QSqlDatabase
+from qgis.core import QgsDataSourceUri, QgsVectorLayer
 from qgis.gui import QgsMessageBar
 
 
-class SitnDB:
+class SitnDB(object):
     def __init__(self, dbname, host, port, user, password, providerkey, iface):
         """
             Defines the db connexion parameters and the qgis provider key
         """
 
-        self.uri = QgsDataSourceURI()
+        self.uri = QgsDataSourceUri()
         self.uri.setConnection(host, port, dbname, user, password)
         self.providerkey = providerkey
         self.errorMessage = ''
@@ -41,6 +42,25 @@ class SitnDB:
             return None
         else:
             return layer
+
+    def getStyleUri(self,
+                    shema,
+                    table,
+                    geomfieldname,
+                    whereclause,
+                    layername,
+                    uniqueidfield):
+        """
+            Returns a style URI
+        """
+
+        self.uri.setDataSource(shema,
+                               table,
+                               geomfieldname,
+                               whereclause,
+                               uniqueidfield)
+
+        return self.uri.uri()
 
     def createQtMSDB(self):
         """

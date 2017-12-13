@@ -3,4 +3,5 @@ qgisprj/*.qgs
 *.pyc
 *.yaml
 *.bat
+*.autosave
 resources_rc.py
