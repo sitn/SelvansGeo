@@ -331,7 +331,7 @@ class SelvansGeo(object):
         """
         Load the default SelvansGeo QGIS Project
         """
-        warningTxt = str(u"Ceci annulera les modifications non sauvegardée"
+        warningTxt = str(u"Ceci annulera les modifications non sauvegardées "
                              + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
