@@ -345,7 +345,7 @@ class SelvansGeo(object):
         """
         Link to QGIS print help
         """
-        webbrowser.open("http://docs.qgis.org/2.10/fr/docs/user_manual/" +
+        webbrowser.open("https://docs.qgis.org/2.8/en/docs/user_manual/" +
                         "print_composer/print_composer.html")
 
     def openQgisHelp(self):
