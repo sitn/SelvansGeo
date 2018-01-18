@@ -229,7 +229,7 @@ class Ui_SelvansGeo(object):
         self.btResetDefaultProject.setText(_translate("SelvansGeo", "Reprendre le projet standard"))
         self.lblProject.setText(_translate("SelvansGeo", "Projet actuel:"))
         self.lblCurrentProject.setWhatsThis(_translate("SelvansGeo", "Ceci est le chemin vers le fichier QGIS chargé actuellement"))
-        self.lblVersion.setText(_translate("SelvansGeo", "<html><head/><body><p><span style=\" font-weight:600;\">SelvansGeo 3.0.0</span> du 24.07.20017 pour QGIS <span style=\" font-weight:600;\">2.99 +</span></p></body></html>"))
+        self.lblVersion.setText(_translate("SelvansGeo", "<html><head/><body><p><span style=\" font-weight:600;\">SelvansGeo 3.0.0</span> du 18.01.2018 pour QGIS <span style=\" font-weight:600;\">2.99 + &amp; 2.18 LTR</span></p></body></html>"))
         self.tabPanel.setTabText(self.tabPanel.indexOf(self.connexionTab), _translate("SelvansGeo", "Connexion - Projet"))
         self.cmbAnalysis.setToolTip(_translate("SelvansGeo", "Choix de l\'analyse thématique"))
         self.cmbAnalysis.setWhatsThis(_translate("SelvansGeo", "Choisir une analyse"))
