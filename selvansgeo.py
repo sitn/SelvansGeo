@@ -22,7 +22,6 @@
 """
 
 from builtins import str
-from builtins import object
 import os.path
 import sys
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject
@@ -32,8 +31,8 @@ from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon, QIntValidator
 from qgis.PyQt.QtGui import QPainter
 from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
-from qgis.core import QgsProject, QgsCredentials
-from qgis.gui import QgsMessageBar
+from qgis.core import QgsProject, QgsCredentials, Qgis
+
 # Backward compatibility QGIS3=>2
 try:
     from . import resources
@@ -60,7 +59,7 @@ currentPath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
 
 
-class SelvansGeo(object):
+class SelvansGeo():
 
     def __init__(self, iface):
         """
@@ -309,12 +308,12 @@ class SelvansGeo(object):
         if self.currentRole != roleSelected and self.currentRole != "init":
             self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
                                         + "mode ") +
-                                        roleSelected, level=QgsMessageBar.INFO)
+                                        roleSelected, level=Qgis.Info)
             self.openSelvansGeoProject()
         else:
             self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
                                         + "mode ") + roleSelected,
-                                        level=QgsMessageBar.INFO)
+                                        level=Qgis.Info)
             self.openSelvansGeoProject()
         # store the current role
         self.currentRole = roleSelected
