@@ -6,8 +6,9 @@
  Qgis ToolBox for forest manager
                              -------------------
         begin                : 2014-03-10
-        copyright            : (C) 2014 by SITN/SFFN
-        email                : olivier.monod@ne.ch
+        copyright           : (C) 2018 by SITN/SFFN
+        Authors             : Olivier Monod, Marie Guillot, Romain Blanc, Michael Kalbermatten
+        email                : sitn@ne.ch
  ***************************************************************************/
 
 /***************************************************************************

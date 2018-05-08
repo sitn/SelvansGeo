@@ -7,8 +7,8 @@
 
                               -------------------
         begin                : 2014-03-10
-        Authors              : 2014-2017 by SITN-OM/SFFN-MG-RB
-        email                : olivier.monod@ne.ch
+        Authors             : Olivier Monod, Marie Guillot, Romain Blanc, Michael Kalbermatten
+        email                : sitn@ne.ch
  ***************************************************************************/
 
 /***************************************************************************
