@@ -62,18 +62,16 @@ class ThematicAnalysis(object):
         # Check if one analysis is selected
         selectedIndex = self.dlg.cmbAnalysis.currentIndex()
         if selectedIndex == 0:
-            self.messageBar.pushMessage("Erreur ",
-                                        str(u"Sélectionnez une analyse!"),
-                                        level=QgsMessageBar.WARNING)
+            self.messageBar.pushWarning("Erreur ",
+                                        str(u"Sélectionnez une analyse!"))
             return
 
         # Get the analysis parameters
         params = self.getAnalysisFromDb()
         self.qstr = params["querystring"]
         if self.qstr is None or self.qstr == "":
-            self.messageBar.pushMessage("Erreur",
-                                        str(u"Requête mal définie") + self.qstr,
-                                        level=QgsMessageBar.WARNING)
+            self.messageBar.pushWarning("Erreur",
+                                        str(u"Requête mal définie") + self.qstr)
             return
 
         # Validate user inputs
@@ -81,21 +79,19 @@ class ThematicAnalysis(object):
             and params["date_filtering"]
                 and not self.dlg.chkLastSurvey.isChecked()):
 
-            self.messageBar.pushMessage("Erreur",
-                                        "Vous devez saisir une date "
-                                        + newTableName,
-                                        level=QgsMessageBar.CRITICAL)
+            self.messageBar.pushCritical("Erreur",
+                                         "Vous devez saisir une date "
+                                         + newTableName)
             return
 
         if ((self.dlg.lnYearStart.text() == ""
-            or self.dlg.lnYearEnd.text() == "")
+             or self.dlg.lnYearEnd.text() == "")
                 and params["date_filtering"]
                 and params["timerange_filtering"]):
 
-            self.messageBar.pushMessage("Erreur",
-                                        "Vous devez  saisir 2 dates"
-                                        + newTableName,
-                                        level=QgsMessageBar.CRITICAL)
+            self.messageBar.pushCritical("Erreur",
+                                         "Vous devez  saisir 2 dates"
+                                         + newTableName)
             return
 
         # Adapt connection string if applicable - method could be cleaner...
@@ -143,10 +139,9 @@ class ThematicAnalysis(object):
                                      "fake_id")
 
         if not pgLayer:
-            self.messageBar.pushMessage("Erreur au chargement de la couche",
-                                        params["join_target_schema"] + '.' +
-                                        params["join_target_table"],
-                                        level=QgsMessageBar.CRITICAL)
+            self.messageBar.pushCritical("Erreur au chargement de la couche",
+                                         params["join_target_schema"] + '.' +
+                                         params["join_target_table"])
             return
 
         # Execute the query and parse the results
@@ -238,10 +233,9 @@ class ThematicAnalysis(object):
             self.saveAnalysisToDisk(analysisLayer)
 
         if analysisCreateNewLayer:
-            self.messageBar.pushMessage("Avertissement",
-                                        str(u"La couche est manquante - " +
-                                            u"mettre à jour l'impression..."),
-                                        level=QgsMessageBar.WARNING)
+            self.messageBar.pushCritical("Avertissement",
+                                         str(u"La couche est manquante - " +
+                                             u"mettre à jour l'impression..."))
 
             root = QgsProject.instance().layerTreeRoot()
             sgeoGroup = root.findGroup('Analyses SELVANS')
@@ -270,7 +264,6 @@ class ThematicAnalysis(object):
         else:
             print("handle that")
 
-
     def zoomToSelectedAdministration(self, admFilter):
         if admFilter != '':
             admFilter = ' adm = \'' + admFilter
@@ -287,11 +280,6 @@ class ThematicAnalysis(object):
                 admExtent = admLayer.extent()
                 self.iface.mapCanvas().setExtent(admExtent)
                 self.iface.mapCanvas().refresh()
-            # else:
-                # self.messageBar.pushMessage("Avertissement",
-                #                             "Administration(s)" + admFilter +
-                #                             " manquante dans la base PostGIS!",
-                #                             level=QgsMessageBar.WARNING)
             return
 
         else:
@@ -301,10 +289,9 @@ class ThematicAnalysis(object):
         # Apply the style stored in public.layer_styles to the result layer
 
         if qversion != 3:
-            self.messageBar.pushMessage("Avertissement",
+            self.messageBar.pushWarning("Avertissement",
                                         str(u"Le style par défaut n'est pas " +
-                                            u"chargé dans QGIS 2.18"),
-                                        level=QgsMessageBar.WARNING)
+                                            u"chargé dans QGIS 2.18"))
             return
 
         p = params["default_style"]
@@ -319,22 +306,19 @@ class ThematicAnalysis(object):
 
             if styleOk[0]:
 
-                self.messageBar.pushMessage("Info",
-                                            str(u"Style par défaut chargé " +
-                                                "depuis la base" +
-                                                "de données"),
-                                            level=QgsMessageBar.INFO)
+                self.messageBar.pushInfo("Info",
+                                         str(u"Style par défaut chargé " +
+                                             "depuis la base" +
+                                             "de données"))
             else:
-                self.messageBar.pushMessage("Erreur",
+                self.messageBar.pushWarning("Erreur",
                                             str(u"Style pas défaut non " +
-                                                "valide"),
-                                            level=QgsMessageBar.WARNING)
+                                                "valide"))
 
         else:
-            self.messageBar.pushMessage("Erreur",
+            self.messageBar.pushWarning("Erreur",
                                         str(u"Style non défini dans la " +
-                                            "table main.analysis"),
-                                        level=QgsMessageBar.WARNING)
+                                            "table main.analysis"))
 
     def editCoupeFilter(self, coupeFilter, coupetypefiltering):
 
@@ -356,23 +340,23 @@ class ThematicAnalysis(object):
 
     def editAdmFilter(self, admFilter):
         if admFilter != '':
-                subString = ''
-                if len(admFilter.split(';')) > 1:
-                    i = 0
-                    for val in admFilter.split(';'):
-                        if i == 0:
-                            subString += ' AND (Administrations.'
-                            subString += 'ADM_NOM_COURT = \'' + val + '\''
-                            i += 1
-                        else:
-                            subString += ' OR Administrations.'
-                            subString += 'ADM_NOM_COURT = \'' + val + '\''
-                    subString += ' )'
-                else:
-                    subString = ' AND Administrations.'
-                    subString += 'ADM_NOM_COURT = \'' + admFilter + '\''
+            subString = ''
+            if len(admFilter.split(';')) > 1:
+                i = 0
+                for val in admFilter.split(';'):
+                    if i == 0:
+                        subString += ' AND (Administrations.'
+                        subString += 'ADM_NOM_COURT = \'' + val + '\''
+                        i += 1
+                    else:
+                        subString += ' OR Administrations.'
+                        subString += 'ADM_NOM_COURT = \'' + val + '\''
+                subString += ' )'
+            else:
+                subString = ' AND Administrations.'
+                subString += 'ADM_NOM_COURT = \'' + admFilter + '\''
 
-                self.qstr = self.qstr.replace('--EDITADMCODE', subString)
+            self.qstr = self.qstr.replace('--EDITADMCODE', subString)
 
     def fillSelvansTable(self,
                          query,
@@ -399,9 +383,8 @@ class ThematicAnalysis(object):
         selvansTableProvider.addFeatures(resultFeatures)
 
         if k == 0:
-            self.messageBar.pushMessage("Attention",
-                                        str(u"Résultat vide! : "),
-                                        level=QgsMessageBar.WARNING)
+            self.messageBar.pushWarning("Attention",
+                                        str(u"Résultat vide! : "))
             return
 
     def createProgressbar(self, loopnumber):
@@ -415,7 +398,7 @@ class ThematicAnalysis(object):
         progress.setMaximum(loopnumber)
         progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         progressMessageBar.layout().addWidget(progress)
-        self.messageBar.pushWidget(progressMessageBar, self.messageBar.INFO)
+        self.messageBar.pushWidget(progressMessageBar)
 
         return progress
 
@@ -442,7 +425,8 @@ class ThematicAnalysis(object):
                 sgeoGroup.setItemVisibilityCheckedRecursive(False)
 
             if analysisLayerNode:
-                analysisLayerNode.setItemVisibilityCheckedParentRecursive(False)
+                analysisLayerNode.setItemVisibilityCheckedParentRecursive(
+                    False)
                 analysisLayerNode.setItemVisibilityCheckedParentRecursive(True)
         else:
             lReg = QgsMapLayerRegistry.instance()
@@ -465,13 +449,11 @@ class ThematicAnalysis(object):
         error = QgsVectorFileWriter.writeAsVectorFormat(
             layer, fileDestination, "utf8", crs, "ESRI Shapefile")
         if error == QgsVectorFileWriter.NoError:
-            self.messageBar.pushMessage("Enregistrement réussi",
-                                        fileDestination,
-                                        level=QgsMessageBar.INFO)
+            self.messageBar.pushInfo("Enregistrement réussi",
+                                     fileDestination)
         else:
-            self.messageBar.pushMessage("Échec de l'enregistrement",
-                                        fileDestination,
-                                        level=QgsMessageBar.CRITICAL)
+            self.messageBar.pushCritical("Échec de l'enregistrement",
+                                         fileDestination)
 
     def openFileDialog(self):
         """
@@ -554,19 +536,17 @@ class ThematicAnalysis(object):
 
             if querystring and querystring != "":
                 self.dlg.txtMssqlQuery.setPlainText(querystring)
-                self.messageBar.pushMessage("Connexion PG",
-                                            str(u"Définition " +
-                                                u"récupérée avec succès"),
-                                            level=QgsMessageBar.INFO)
+                self.messageBar.pushInfo("Connexion PG",
+                                         str(u"Définition " +
+                                             u"récupérée avec succès"))
                 self.setUpAnalysisGui(datefiltering,
                                       timerangefiltering,
                                       coupetypefiltering)
             else:
                 self.dlg.txtMssqlQuery.setPlainText("")
-                self.messageBar.pushMessage("Erreur",
-                                            str(u"La requête n'est pas " +
-                                                u" définie dans la base"),
-                                            level=QgsMessageBar.CRITICAL)
+                self.messageBar.pushCritical("Erreur",
+                                             str(u"La requête n'est pas " +
+                                                 u" définie dans la base"))
         else:
             self.dlg.txtMssqlQuery.setPlainText("")
 
