@@ -573,14 +573,14 @@ class ThematicAnalysis(object):
             self.dlg.lblDateStart.show()
             self.dlg.chkLastSurvey.show()
             if timerangefiltering:
-                self.dlg.lblDateStart.setText(str(u'Début'))
+                self.dlg.lblDateStart.setText(str('Début'))
                 self.dlg.lnYearEnd.show()
                 self.dlg.lblDateEnd.show()
                 self.dlg.chkLastSurvey.hide()
                 self.dlg.lnYearStart.setEnabled(True)
                 self.dlg.lblDateStart.setEnabled(True)
             else:
-                self.dlg.lblDateStart.setText(str(u'Année'))
+                self.dlg.lblDateStart.setText(str('Année'))
                 self.dlg.lnYearEnd.hide()
                 self.dlg.lblDateEnd.hide()
                 self.dlg.lblCoupeType.hide()

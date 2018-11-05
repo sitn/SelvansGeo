@@ -117,7 +117,7 @@ class SelvansGeo():
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&SelvansGeo", self.action)
+        self.iface.addPluginToMenu("&SelvansGeo", self.action)
 
         # disable tabs until user is connected to db
         self.switchUiMode(True)
@@ -266,7 +266,7 @@ class SelvansGeo():
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
                     self.messageBar.pushCritical(
-                        "Erreur", str(u"Mauvais mot de passe"))
+                        "Erreur", str("Mauvais mot de passe"))
                     self.dlg.txtPassword.setText("")
                     return
 
@@ -296,7 +296,7 @@ class SelvansGeo():
         """
         Load the default SelvansGeo QGIS Project
         """
-        warningTxt = str(u"Ceci annulera les modifications non sauvegardées "
+        warningTxt = str("Ceci annulera les modifications non sauvegardées "
                              + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
@@ -408,7 +408,7 @@ class SelvansGeo():
         """
         Remove the plugin menu item and icon
         """
-        self.iface.removePluginMenu(u"&SelvansGeo", self.action)
+        self.iface.removePluginMenu("&SelvansGeo", self.action)
         self.iface.removeToolBarIcon(self.action)
 
     # run method that performs all the real work
