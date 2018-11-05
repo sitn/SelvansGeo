@@ -33,11 +33,7 @@ from qgis.PyQt.QtGui import QPainter
 from qgis.PyQt.QtWidgets import QListWidgetItem, QFileDialog, QMessageBox
 from qgis.core import QgsProject, QgsCredentials, Qgis
 
-# Backward compatibility QGIS3=>2
-try:
-    from . import resources
-except ImportError:
-    from . import resources_qgis2
+from . import resources
 from .selvansgeodialog import SelvansGeoDialog
 from .core.thematicanalysis import ThematicAnalysis
 from .core.sitndb import SitnDB
@@ -45,31 +41,20 @@ from .core.tabularNavigation import tabularNavigation
 import webbrowser
 import yaml
 
-# Backward compatibility QGIS3=>2
-qversion = 3
-try:
-    from qgis.core import QgsVectorLayerJoinInfo
-except ImportError:
-    qversion = 2
-
-print("***QGIS version*: " + str(qversion))
-
 # Set up current path, so that we know where to look for modules
 currentPath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
 
 
 class SelvansGeo():
-
     def __init__(self, iface):
         """
         Constructor of SelvanGeo. References to the
         """
-
-        self.conf = yaml.load(
-            open(os.path.dirname(os.path.abspath(__file__)) +
-                 "\\selvansgeo.yaml", 'r')
-        )['vars']
+        yaml_file = open(os.path.dirname(os.path.abspath(__file__)) + \
+            "\\selvansgeo.yaml", 'r')
+        self.conf = yaml.load(yaml_file)['vars']
+        yaml_file.close()
 
         # Get reference to the QGIS interface
         self.iface = iface
@@ -103,12 +88,8 @@ class SelvansGeo():
         self.readerPwd = self.conf['pg']['password']
 
         # Project paths
-        if qversion == 3:
-            self.defaultProjectPath = currentPath + "/qgisprj/" + \
-                self.conf['default_project_qgis3']
-        else:
-            self.defaultProjectPath = currentPath + "/qgisprj/" + \
-                self.conf['default_project_qgis2']
+        self.defaultProjectPath = currentPath + "/qgisprj/" + \
+            self.conf['default_project_qgis3']
 
         print(self.defaultProjectPath)
         s = QSettings()
@@ -121,9 +102,6 @@ class SelvansGeo():
         if os.path.exists(localePath):
             self.translator = QTranslator()
             self.translator.load(localePath)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
 
     def initGui(self):
         """
@@ -230,14 +208,8 @@ class SelvansGeo():
     def defineDefaultProject(self):
         filename = QFileDialog.getOpenFileName(None, 'Choisir un projet')
         s = QSettings()
-        # Backward compatibility QGIS3=>2
-        if qversion == 3:
-            s.setValue("SelvansGeo/customProject", filename[0])
-            self.customProjectPath = filename[0]
-        else:
-            print(filename)
-            s.setValue("SelvansGeo/customProject", filename)
-            self.customProjectPath = filename
+        s.setValue("SelvansGeo/customProject", filename[0])
+        self.customProjectPath = filename[0]
 
         # Set label about project path
         self.dlg.lblCurrentProject.setText(self.customProjectPath)
@@ -283,7 +255,7 @@ class SelvansGeo():
             else:
                 s = QSettings()
                 s.setValue("SelvansGeo/writerCredentials", pwd)
-                # Setup  QGIS credentials dialog
+                # Setup QGIS credentials dialog
                 checkdb = QSqlDatabase.addDatabase("QPSQL")
                 checkdb.setHostName(conf['pg']['host'])
                 checkdb.setDatabaseName(conf['pg']['dbname'])
@@ -293,9 +265,8 @@ class SelvansGeo():
                 if checkdb.open():
                     self.credentialInstance.put(connectionInfo, user, pwd)
                 else:
-                    self.messageBar.pushMessage("Erreur",
-                                                str(u"Mauvais mot de passe"),
-                                                level=QgsMessageBar.CRITICAL)
+                    self.messageBar.pushCritical(
+                        "Erreur", str(u"Mauvais mot de passe"))
                     self.dlg.txtPassword.setText("")
                     return
 
@@ -305,16 +276,11 @@ class SelvansGeo():
 
         self.switchUiMode(True)
 
-        if self.currentRole != roleSelected and self.currentRole != "init":
-            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
-                                        + "mode ") +
-                                        roleSelected, level=Qgis.Info)
-            self.openSelvansGeoProject()
-        else:
-            self.messageBar.pushMessage("Info", str(u"Vous êtes connecté en"
-                                        + "mode ") + roleSelected,
-                                        level=Qgis.Info)
-            self.openSelvansGeoProject()
+        self.messageBar.pushMessage(
+            str(u"Vous êtes connecté en mode ") + roleSelected, level=Qgis.Info
+        )
+        self.openSelvansGeoProject()
+
         # store the current role
         self.currentRole = roleSelected
 
@@ -339,6 +305,9 @@ class SelvansGeo():
         if reply == QMessageBox.Ok:
             self.iface.addProject(self.customProjectPath)
             self.iface.actionOpenProject()
+            # After actionOpenProject, db connections are lost
+            # GUI needs to be reloaded
+            self.initGui()
 
     def openQgisPrintHelp(self):
         """
