@@ -6,3 +6,4 @@ qgisprj/*.qgd
 *.bat
 *.autosave
 resources_rc.py
+*.vscode

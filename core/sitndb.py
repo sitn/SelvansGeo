@@ -80,14 +80,12 @@ class SitnDB(object):
                 return db, True
 
             else:
-                self.messageBar.pushMessage("Connection SQl Server",
-                                            db.lastError().text(),
-                                            level=QgsMessageBar.CRITICAL)
+                self.messageBar.pushCritical("Connection SQl Server",
+                                            db.lastError().text())
                 db.close()
                 db.removeDatabase(db.databaseName())
                 db = None
                 return db, False
         else:
-            self.messageBar.pushMessage("Connection SQL Server",
-                                        'QODBC db is NOT valid',
-                                        level=QgsMessageBar.CRITICAL)
+            self.messageBar.pushCritical("Connection SQL Server",
+                                        'QODBC db is NOT valid')
