@@ -105,9 +105,10 @@ class tabularNavigation(object):
         self.dlg.listDiv.clear()
         whereClause = " adm = '" + item.text() + "'"
 
-        query = "(select nom, adm, idne, geom from parcellaire.divisions " +  \
+        query = "(select nom, adm, idobj, geom from parcellaire.divisions " +  \
                 "where " + whereClause + " order by nom asc)"
-        divLayer = self.pgdb.getLayer("", query, "geom", "", "listDiv", "idne")
+
+        divLayer = self.pgdb.getLayer("", query, "geom", "", "listDiv", "idobj")
 
         if divLayer:
             features = divLayer.getFeatures()
@@ -123,7 +124,7 @@ class tabularNavigation(object):
             nomdiv = attrs[idx]
             idx = divLayer.fields().indexFromName("adm")
             nomadm = attrs[idx]
-            idx = divLayer.fields().indexFromName("idne")
+            idx = divLayer.fields().indexFromName("idobj")
             idne = attrs[idx]
             self.dlg.listDiv.addItem(
                 QSelvansListItem(idne, str(nomadm) + str(nomdiv),
