@@ -305,9 +305,6 @@ class SelvansGeo():
         if reply == QMessageBox.Ok:
             self.iface.addProject(self.customProjectPath)
             self.iface.actionOpenProject()
-            # After actionOpenProject, db connections are lost
-            # GUI needs to be reloaded
-            self.initGui()
 
     def openQgisPrintHelp(self):
         """
