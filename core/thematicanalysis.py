@@ -4,6 +4,7 @@ from builtins import str
 from builtins import object
 from uuid import uuid4
 from qgis.PyQt.QtCore import Qt, QVariant
+from qgis.PyQt.QtSql import QSqlQuery
 from qgis.PyQt.QtXml import QDomDocument
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressBar
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsProject
@@ -145,7 +146,8 @@ class ThematicAnalysis(object):
             return
 
         # Execute the query and parse the results
-        query = self.qtmsdb.exec_(self.qstr)
+        query = QSqlQuery(self.qtmsdb)        
+        query.exec_(self.qstr)
         # TODO: Check query validity
         query.setForwardOnly(True)
 
