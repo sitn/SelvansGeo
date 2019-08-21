@@ -259,6 +259,7 @@ class SelvansGeo():
                 checkdb = QSqlDatabase.addDatabase("QPSQL")
                 checkdb.setHostName(conf['pg']['host'])
                 checkdb.setDatabaseName(conf['pg']['dbname'])
+                checkdb.setPort(int(conf['pg']['port']))
                 checkdb.setUserName(user)
                 checkdb.setPassword(pwd)
 
