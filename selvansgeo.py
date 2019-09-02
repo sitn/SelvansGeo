@@ -284,6 +284,11 @@ class SelvansGeo():
 
         # store the current role
         self.currentRole = roleSelected
+        
+        # check that MS Connection is still valid. It seems that the credential manager
+        # somehow resets the connections when reconnecting to PG.
+        if self.qtmsdb.isValid() is False:
+            self.qtmsdb, isMSOpened = self.msdb.createQtMSDB()
 
     # Desactivate all UI except connection part
     def switchUiMode(self, mode):
