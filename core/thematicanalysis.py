@@ -181,21 +181,29 @@ class ThematicAnalysis(object):
         if params["date_filtering"]:
             selvansTableProvider.addAttributes([QgsField(
                 'ANNEE_VALEUR', QVariant.Int)])
+
             joinedFieldsNames.append(joinTableName + '_' + 'ANNEE_VALEUR')
             fieldList.append('ANNEE_VALEUR')
             selvansTableProvider.addAttributes([
-                QgsField('DIV_SERIE', QVariant.Int)])
+                QgsField('DIV_SERIE', QVariant.String)])
+
             joinedFieldsNames.append(joinTableName + '_DIV_SERIE')
             fieldList.append('DIV_SERIE')
 
         # Create progress bar
         progress = self.createProgressbar(query.numRowsAffected())
 
+        selvansTable.updateFields()
+
         # Parse the query result and add the features to memory layer
-        self.fillSelvansTable(query,
-                              selvansTableProvider,
-                              progress, fieldList,
-                              params["join_source_fkfield"])
+        self.fillSelvansTable(
+            query,
+            selvansTableProvider,
+            progress,
+            fieldList,
+            params["join_source_fkfield"]
+        )
+
         selvansTable.updateFields()
         self.projectInstance.addMapLayer(selvansTable, False)
         self.projectInstance.addMapLayer(pgLayer, False)
@@ -213,7 +221,6 @@ class ThematicAnalysis(object):
         fieldslist = []
         for field in fields:
             fieldslist.append(field)
-
         # Copy the features to the result layer
         analysisDp.deleteAttributes(analysisDp.attributeIndexes())
         analysisLayer.updateFields()
@@ -222,6 +229,7 @@ class ThematicAnalysis(object):
 
         outFeat = QgsFeature()
         iter = targetlayer.getFeatures()
+
         for inFeat in iter:
             if inFeat.geometry():
                 outFeat.setGeometry(inFeat.geometry())
@@ -360,28 +368,34 @@ class ThematicAnalysis(object):
 
             self.qstr = self.qstr.replace('--EDITADMCODE', subString)
 
-    def fillSelvansTable(self,
-                         query,
-                         selvansTableProvider,
-                         progress,
-                         fieldList,
-                         fkField):
+    def fillSelvansTable(
+        self,
+        query,
+        selvansTableProvider,
+        progress,
+        fieldList,
+        fkField
+        ):
         """
         Read the results of the query on Selvans SQL Server Database
         """
         k = 0
         resultFeatures = []
+
         while query.next():
             k += 1
             progress.setValue(k)
             record = query.record()
-            feat = QgsFeature()
+            feat = QgsFeature(selvansTableProvider.fields())
+
             feat.setGeometry(QgsGeometry())
-            fieldValueList = [record.field(fkField).value()]
+            fieldValueList = [int(record.field(fkField).value())]
             for fieldName in fieldList:
                 fieldValueList.append(record.field(fieldName).value())
+
             feat.setAttributes(fieldValueList)
             resultFeatures.append(feat)
+
         selvansTableProvider.addFeatures(resultFeatures)
 
         if k == 0:
