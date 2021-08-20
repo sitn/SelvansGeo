@@ -393,8 +393,6 @@ class ThematicAnalysis(object):
             for fieldName in fieldList:
                 fieldValueList.append(record.field(fieldName).value())
 
-            feat.initAttributes(len(fieldValueList))
-
             feat.setAttributes(fieldValueList)
             resultFeatures.append(feat)
 
