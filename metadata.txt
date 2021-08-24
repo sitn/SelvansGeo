@@ -2,7 +2,7 @@
 name=SelvansGeo
 qgisMinimumVersion=3.0.0
 description=Plugin pour l'analyse et l'édition des données spatiale du SFFN
-version=3.1rc1
+version=3.1
 author=SITN/SFFN
 email=sitn@ne.ch
 
@@ -21,7 +21,7 @@ tracker=https://github.com/sitn/SelvansGeo
 repository=https://github.com/sitn/SelvansGeo
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False
