@@ -4,19 +4,7 @@ Spatial extension of the SELVANS information system - a forest managment applica
 This plugin is not generic and is designed for specific database structure dedicated
 to forest surveys analysis and forest cadastre edition.
 
-
-## For QGIS 2
-
-For QGIS 2 serie please you the last 2.XX release
-https://github.com/sitn/SelvansGeo/releases/tag/1.99.99 and copy the config and
-project file to the usual location.
-
-*IMPORTANT*: in order to have QGIS 2 accept to load the plugin, you must edit the
-metadata.txt file and setup a correct qgisMinimumVersion tag.
-
-There is also a legacy branch in this repository (version_28).
-
-## For QGIS 3
+## QGIS 3 and QTDesigner
 
 The UI can be edited using QTDesigner that is shipped with QGIS standalone installation.
 On windows, you'll usually find it following a path analog to:
@@ -33,14 +21,25 @@ commands:
     pyrcc5 -o resources.py resources.qrc
     pyuic5 -o ui_selvansgeo.py ui_selvansgeo.ui
 
-To install pyQt 5, please read http://pyqt.sourceforge.net/Docs/PyQt5/installation.html
-and use pip3 to do so.
+You do not need to install pyQT as it is already installed with QGIS
+(C:\Program Files\QGIS 3.22.3\apps\Python39\Scripts)
+
+To use these commands, you need to open an cmd and define all the needed
+environment variables
+
+You can inspire ourself with the following file:
+C:\Program Files\QGIS 3.22.3\bin\qgis.bat
+
+This one sets all the needed variables, just get rid of the last line
+in order not to start QGIS.
+
+Most important, do not modify this file!! Copy it and create another one.
 
 ## Configuration and default QGIS project
 
 The configuration file (selvangeo.yaml) must be created and edited before starting the plugin
 
-Simply fill the values here https://github.com/monodo/SelvansGeo/blob/qgis_3/selvansgeo.yaml_template,
+Simply fill the values here https://github.com/sitn/SelvansGeo/blob/master/selvansgeo.yaml_template,
 rename the file to .yaml and reload the plugin
 
 The default QGIS project must be copied in a qgisprj directory at plugin root level.
@@ -58,8 +57,7 @@ can use a symlink:
 1. Create your working folder and link it to your Github repositories (something
 like `c:/projects/selvansgeo`)
 2. In the Python plugin folder of QGIS (if on Windows 64bits, it would be
-somewhere like `C:\Program Files\QGIS 3.0\apps\qgis\python\plugins`,
-create a new folder `selvansgeo`.
+somewhere like `C:\Program Files\QGIS 3.0\apps\qgis\python\plugins`.
 3. Open a command prompt as Administrator and run:
 
 ```
@@ -67,3 +65,16 @@ create a new folder `selvansgeo`.
 ```
 
 Now you can develop in your working and tested it live in QGIS (using the plugin reloader).
+
+## Deployment
+
+First run the deployment script:
+
+```
+    .\scripts\deploy.ps1
+```
+
+Then copy the created file to the QGIS plugin repository.
+
+Do not forget to edit the qgis plugin XML to add the new created
+version.
