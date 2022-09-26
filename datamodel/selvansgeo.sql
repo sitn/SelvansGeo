@@ -21,7 +21,4 @@ CREATE TABLE selvansgeo.analysis
   timerange_filtering boolean,
   coupetype_filtering boolean,
   CONSTRAINT analysis_pkey PRIMARY KEY (id)
-)
-WITH (
-  OIDS=TRUE
 );

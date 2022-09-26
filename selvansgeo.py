@@ -22,7 +22,7 @@
 """
 
 from builtins import str
-import os.path
+import os
 import sys
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject
 
@@ -51,10 +51,15 @@ class SelvansGeo():
         """
         Constructor of SelvanGeo. References to the
         """
-        yaml_file = open(os.path.dirname(os.path.abspath(__file__)) + \
-            "\\selvansgeo.yaml", 'r')
-        self.conf = yaml.load(yaml_file)['vars']
-        yaml_file.close()
+        stream = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "selvansgeo.yaml"
+        )
+
+        with open(stream) as f:
+            self.conf = yaml.load(f, yaml.Loader)
+
+        self.conf = self.conf['vars']
 
         # Get reference to the QGIS interface
         self.iface = iface
@@ -361,11 +366,11 @@ class SelvansGeo():
         Fill the QComboBox with the list of analysis available
         """
         self.dlg.cmbAnalysis.clear()
-        query = "(select oid, analysis_name, id from " + \
+        query = "(select id, analysis_name from " + \
             self.conf["configuration_table"] + " order by id asc)"
 
         pgLayer = self.pgdb.getLayer("", query, None, "",
-                                     "Analysis list", "oid")
+                                     "Analysis list", "id")
 
         iter = pgLayer.getFeatures()
         for feature in iter:
