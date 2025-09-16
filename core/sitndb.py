@@ -71,10 +71,8 @@ class SitnDB(object):
         db = QSqlDatabase.addDatabase("QODBC")
 
         if db.isValid():
-            db.setDatabaseName("DRIVER={SQL Server};SERVER=" + self.uri.host()
+            db.setDatabaseName("DRIVER={SQL Server};Trusted_Connection=Yes;SERVER=" + self.uri.host()
                                + ";DATABASE=" + self.uri.database())
-            db.setUserName(self.uri.username())
-            db.setPassword(self.uri.password())
 
             if db.open():
                 return db, True
