@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from qgis.PyQt import QtCore, QtGui, QtWidgets
 
 class Ui_SelvansGeo(object):
     def setupUi(self, SelvansGeo):
@@ -22,13 +22,13 @@ class Ui_SelvansGeo(object):
         self.tabPanel = QtWidgets.QTabWidget(self.horizontalLayoutWidget)
         self.tabPanel.setEnabled(True)
         self.tabPanel.setMinimumSize(QtCore.QSize(501, 0))
-        self.tabPanel.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.tabPanel.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.tabPanel.setObjectName("tabPanel")
         self.connexionTab = QtWidgets.QWidget()
         self.connexionTab.setObjectName("connexionTab")
         self.txtPassword = QtWidgets.QLineEdit(self.connexionTab)
         self.txtPassword.setGeometry(QtCore.QRect(170, 290, 171, 22))
-        self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.txtPassword.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.txtPassword.setObjectName("txtPassword")
         self.label_4 = QtWidgets.QLabel(self.connexionTab)
         self.label_4.setGeometry(QtCore.QRect(40, 250, 91, 16))
@@ -65,14 +65,14 @@ class Ui_SelvansGeo(object):
         self.lblCurrentProject.setGeometry(QtCore.QRect(130, 30, 321, 71))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(247, 247, 247))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
+        brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.Base, brush)
         brush = QtGui.QBrush(QtGui.QColor(247, 247, 247))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
+        brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QtGui.QPalette.ColorGroup.Inactive, QtGui.QPalette.ColorRole.Base, brush)
         brush = QtGui.QBrush(QtGui.QColor(240, 240, 240))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
+        brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Base, brush)
         self.lblCurrentProject.setPalette(palette)
         self.lblCurrentProject.setObjectName("lblCurrentProject")
         self.lblVersion = QtWidgets.QLabel(self.connexionTab)
@@ -100,7 +100,7 @@ class Ui_SelvansGeo(object):
         self.txtMssqlQuery = QtWidgets.QTextEdit(self.tabAnalysis)
         self.txtMssqlQuery.setEnabled(True)
         self.txtMssqlQuery.setGeometry(QtCore.QRect(30, 220, 451, 111))
-        self.txtMssqlQuery.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.txtMssqlQuery.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.txtMssqlQuery.setObjectName("txtMssqlQuery")
         self.btAdvancedUserMode = QtWidgets.QPushButton(self.tabAnalysis)
         self.btAdvancedUserMode.setGeometry(QtCore.QRect(340, 10, 141, 28))
@@ -123,8 +123,8 @@ class Ui_SelvansGeo(object):
         self.frameIcon = QtWidgets.QFrame(self.tabAnalysis)
         self.frameIcon.setGeometry(QtCore.QRect(10, 390, 41, 41))
         self.frameIcon.setStyleSheet("QFrame {bacCkground-color: red}")
-        self.frameIcon.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frameIcon.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.frameIcon.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.frameIcon.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
         self.frameIcon.setLineWidth(0)
         self.frameIcon.setObjectName("frameIcon")
         self.chkLastSurvey = QtWidgets.QCheckBox(self.tabAnalysis)
@@ -189,8 +189,8 @@ class Ui_SelvansGeo(object):
         self.frameIcon_4 = QtWidgets.QFrame(self.tab)
         self.frameIcon_4.setGeometry(QtCore.QRect(0, 350, 41, 41))
         self.frameIcon_4.setStyleSheet("QFrame {bacCkground-color: red}")
-        self.frameIcon_4.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frameIcon_4.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.frameIcon_4.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.frameIcon_4.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
         self.frameIcon_4.setLineWidth(0)
         self.frameIcon_4.setObjectName("frameIcon_4")
         self.btQgisPrintComposerHelp = QtWidgets.QPushButton(self.tab)
@@ -198,6 +198,7 @@ class Ui_SelvansGeo(object):
         self.btQgisPrintComposerHelp.setObjectName("btQgisPrintComposerHelp")
         self.tabPanel.addTab(self.tab, "")
         self.horizontalLayout.addWidget(self.tabPanel)
+
 
         self.retranslateUi(SelvansGeo)
         self.tabPanel.setCurrentIndex(0)
@@ -229,7 +230,7 @@ class Ui_SelvansGeo(object):
         self.btResetDefaultProject.setText(_translate("SelvansGeo", "Reprendre le projet standard"))
         self.lblProject.setText(_translate("SelvansGeo", "Projet actuel:"))
         self.lblCurrentProject.setWhatsThis(_translate("SelvansGeo", "Ceci est le chemin vers le fichier QGIS chargé actuellement"))
-        self.lblVersion.setText(_translate("SelvansGeo", "<html><head/><body><p><span style=\" font-weight:600;\">SelvansGeo 3.1.2</span> du 23.09.2022 pour QGIS <span style=\" font-weight:600;\">3.4+</span></p></body></html>"))
+        self.lblVersion.setText(_translate("SelvansGeo", "<html><head/><body><p><span style=\" font-weight:600;\">SelvansGeo 3.2.0</span> du 01.12.2025 pour QGIS <span style=\" font-weight:600;\">3.4+</span></p></body></html>"))
         self.tabPanel.setTabText(self.tabPanel.indexOf(self.connexionTab), _translate("SelvansGeo", "Connexion - Projet"))
         self.cmbAnalysis.setToolTip(_translate("SelvansGeo", "Choix de l\'analyse thématique"))
         self.cmbAnalysis.setWhatsThis(_translate("SelvansGeo", "Choisir une analyse"))
