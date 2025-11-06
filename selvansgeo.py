@@ -283,7 +283,7 @@ class SelvansGeo():
         self.switchUiMode(True)
 
         self.messageBar.pushMessage(
-            str(u"Vous êtes connecté en mode ") + roleSelected, level=Qgis.Info
+            str(u"Vous êtes connecté en mode ") + roleSelected, level=Qgis.MessageLevel.Info
         )
         self.openSelvansGeoProject()
 
@@ -311,9 +311,9 @@ class SelvansGeo():
                              + "du projet QGIS ouvert actuellement")
 
         reply = QMessageBox.question(self.dlg, 'Avertissement!', warningTxt,
-                                     QMessageBox.Ok | QMessageBox.Cancel,
-                                     QMessageBox.Cancel)
-        if reply == QMessageBox.Ok:
+                                     QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel,
+                                     QMessageBox.StandardButton.Cancel)
+        if reply == QMessageBox.StandardButton.Ok:
             self.iface.addProject(self.customProjectPath)
             self.iface.actionOpenProject()
 
@@ -428,4 +428,4 @@ class SelvansGeo():
         # CALL THIS, REALLY ???
         #self.fillLayersCombo()
         # Run the dialog event loop
-        self.dlg.exec_()
+        self.dlg.exec()

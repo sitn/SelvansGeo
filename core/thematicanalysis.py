@@ -147,7 +147,7 @@ class ThematicAnalysis(object):
 
         # Execute the query and parse the results
         query = QSqlQuery(self.qtmsdb)        
-        query.exec_(self.qstr)
+        query.exec(self.qstr)
         # TODO: Check query validity
         query.setForwardOnly(True)
 
@@ -412,7 +412,7 @@ class ThematicAnalysis(object):
         progress = QProgressBar()
         progress.setMinimum(0)
         progress.setMaximum(loopnumber)
-        progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        progress.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         progressMessageBar.layout().addWidget(progress)
         self.messageBar.pushWidget(progressMessageBar)
 
@@ -464,7 +464,7 @@ class ThematicAnalysis(object):
         crs = QgsCoordinateReferenceSystem("EPSG:2056")
         error = QgsVectorFileWriter.writeAsVectorFormat(
             layer, fileDestination, "utf8", crs, "ESRI Shapefile")
-        if error == QgsVectorFileWriter.NoError:
+        if error == QgsVectorFileWriter.WriterError.NoError:
             self.messageBar.pushInfo("Enregistrement réussi",
                                      fileDestination)
         else:
